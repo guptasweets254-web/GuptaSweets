@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Festive Indian Sweet Shop Palette */
+    --background: 35 50% 97%;
+    --foreground: 15 60% 15%;
+
+    --card: 35 40% 95%;
+    --card-foreground: 15 60% 15%;
+
+    --popover: 35 40% 95%;
+    --popover-foreground: 15 60% 15%;
+
+    /* Saffron Orange - Primary */
+    --primary: 25 95% 50%;
+    --primary-foreground: 35 50% 97%;
+
+    /* Deep Red - Secondary */
+    --secondary: 0 75% 35%;
+    --secondary-foreground: 35 50% 97%;
+
+    /* Gold - Accent */
+    --accent: 43 90% 55%;
+    --accent-foreground: 15 60% 15%;
+
+    --muted: 35 30% 90%;
+    --muted-foreground: 15 30% 40%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 40% 85%;
+    --input: 35 40% 85%;
+    --ring: 25 95% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom colors */
+    --gold: 43 90% 55%;
+    --gold-light: 43 90% 70%;
+    --saffron: 25 95% 50%;
+    --saffron-dark: 20 90% 40%;
+    --cream: 35 50% 97%;
+    --maroon: 0 75% 25%;
+    --festival-red: 0 75% 35%;
+
+    /* Gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(43 90% 55%), hsl(35 85% 45%));
+    --gradient-festive: linear-gradient(135deg, hsl(25 95% 50%), hsl(0 75% 35%));
+    --gradient-warm: linear-gradient(180deg, hsl(35 50% 97%), hsl(35 40% 92%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 75% 25% / 0.9), hsl(25 95% 35% / 0.85));
+
+    /* Shadows */
+    --shadow-gold: 0 4px 20px hsl(43 90% 55% / 0.3);
+    --shadow-warm: 0 10px 40px hsl(25 95% 50% / 0.15);
+    --shadow-card: 0 4px 20px hsl(15 60% 15% / 0.08);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 15 30% 8%;
+    --foreground: 35 50% 95%;
+
+    --card: 15 25% 12%;
+    --card-foreground: 35 50% 95%;
+
+    --popover: 15 25% 12%;
+    --popover-foreground: 35 50% 95%;
+
+    --primary: 25 95% 55%;
+    --primary-foreground: 15 30% 8%;
+
+    --secondary: 0 65% 45%;
+    --secondary-foreground: 35 50% 95%;
+
+    --accent: 43 85% 60%;
+    --accent-foreground: 15 30% 8%;
+
+    --muted: 15 20% 18%;
+    --muted-foreground: 35 30% 65%;
+
+    --border: 15 20% 20%;
+    --input: 15 20% 20%;
+    --ring: 25 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(43 90% 55%), hsl(35 85% 45%));
+  }
+
+  .text-gradient-festive {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(25 95% 55%), hsl(0 75% 45%));
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, hsl(0 75% 25% / 0.92), hsl(25 80% 30% / 0.88));
+  }
+
+  .bg-gradient-festive {
+    background: linear-gradient(135deg, hsl(25 95% 50%), hsl(0 75% 35%));
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, hsl(43 90% 55%), hsl(35 85% 45%));
+  }
+
+  .bg-gradient-warm {
+    background: linear-gradient(180deg, hsl(35 50% 97%), hsl(35 40% 92%));
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 30px hsl(43 90% 55% / 0.4), 0 0 60px hsl(43 90% 55% / 0.2);
+  }
+
+  .glow-saffron {
+    box-shadow: 0 0 30px hsl(25 95% 50% / 0.4), 0 0 60px hsl(25 95% 50% / 0.2);
+  }
+
+  .card-festive {
+    @apply bg-card rounded-xl border border-border/50 overflow-hidden;
+    box-shadow: 0 4px 20px hsl(15 60% 15% / 0.08);
+  }
+
+  .card-festive:hover {
+    box-shadow: 0 8px 30px hsl(43 90% 55% / 0.2);
+  }
+
+  .btn-festive {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300;
+    background: linear-gradient(135deg, hsl(25 95% 50%), hsl(0 75% 40%));
+    color: hsl(35 50% 97%);
+  }
+
+  .btn-festive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsl(25 95% 50% / 0.4);
+  }
+
+  .btn-gold {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300;
+    background: linear-gradient(135deg, hsl(43 90% 55%), hsl(35 85% 45%));
+    color: hsl(15 60% 15%);
+  }
+
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsl(43 90% 55% / 0.5);
+  }
+
+  .indian-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='%23d4a853' fill-opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  .rangoli-pattern {
+    background-image: radial-gradient(circle at center, hsl(43 90% 55% / 0.1) 0%, transparent 50%);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-sparkle {
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 20px hsl(43 90% 55% / 0.3); }
+  to { box-shadow: 0 0 40px hsl(43 90% 55% / 0.6); }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, hsl(43 90% 55% / 0.3), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
