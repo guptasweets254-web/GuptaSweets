@@ -40,8 +40,8 @@ export class AuthController {
 
     // set cookies
     const secure = process.env.NODE_ENV === 'production';
-    res.cookie(ACCESS_COOKIE_NAME, accessToken, { httpOnly: true, secure, sameSite: 'lax', maxAge: 1000 * 60 * 15 });
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, { httpOnly: true, secure, sameSite: 'lax', path: '/auth/refresh', maxAge: 1000 * 60 * 60 * 24 * REFRESH_TOKEN_EXPIRES_DAYS });
+    res.cookie(ACCESS_COOKIE_NAME, accessToken, { httpOnly: true, secure, sameSite: 'none', maxAge: 1000 * 60 * 15 });
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, { httpOnly: true, secure, sameSite: 'none', path: '/auth/refresh', maxAge: 1000 * 60 * 60 * 24 * REFRESH_TOKEN_EXPIRES_DAYS });
 
     return res.json({ message: 'signed-in', expiresAt });
   }
@@ -54,8 +54,8 @@ export class AuthController {
     try {
       const { accessToken, refreshToken, expiresAt } = await this.auth.rotateRefreshToken(token, req.ip, req.headers['user-agent'] as string);
       const secure = process.env.NODE_ENV === 'production';
-      res.cookie(ACCESS_COOKIE_NAME, accessToken, { httpOnly: true, secure, sameSite: 'lax', maxAge: 1000 * 60 * 15 });
-      res.cookie(REFRESH_COOKIE_NAME, refreshToken, { httpOnly: true, secure, sameSite: 'lax', path: '/auth/refresh', maxAge: 1000 * 60 * 60 * 24 * REFRESH_TOKEN_EXPIRES_DAYS });
+      res.cookie(ACCESS_COOKIE_NAME, accessToken, { httpOnly: true, secure, sameSite: 'none', maxAge: 1000 * 60 * 15 });
+      res.cookie(REFRESH_COOKIE_NAME, refreshToken, { httpOnly: true, secure, sameSite: 'none', path: '/auth/refresh', maxAge: 1000 * 60 * 60 * 24 * REFRESH_TOKEN_EXPIRES_DAYS });
       return res.json({ message: 'refreshed', expiresAt });
     } catch (e) {
       return res.status(401).json({ message: 'Invalid refresh token' });
