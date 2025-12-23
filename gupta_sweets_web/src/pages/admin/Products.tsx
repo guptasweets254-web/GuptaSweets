@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, MoreVertical } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getCsrf } from "@/lib/auth";
+import { getProducts, deleteProduct, getCategories, updateProduct } from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -34,30 +36,43 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const mockProducts = [
-  { id: 1, name: "Kaju Katli", category: "Dry Fruit Sweets", price: "₹800/kg", status: "Active", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-  { id: 2, name: "Gulab Jamun", category: "Milk Sweets", price: "₹400/kg", status: "Active", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-  { id: 3, name: "Rasgulla", category: "Bengali Sweets", price: "₹350/kg", status: "Active", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-  { id: 4, name: "Motichoor Laddoo", category: "Laddoos", price: "₹450/kg", status: "Inactive", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-  { id: 5, name: "Besan Barfi", category: "Traditional Sweets", price: "₹500/kg", status: "Active", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-  { id: 6, name: "Soan Papdi", category: "Traditional Sweets", price: "₹300/kg", status: "Active", image: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=100" },
-];
+// categories are loaded from API now
 
-const categories = [
-  "Milk Sweets",
-  "Dry Fruit Sweets",
-  "Bengali Sweets",
-  "Laddoos",
-  "Traditional Sweets",
-  "Namkeen",
-  "Cakes",
-];
 
 const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
-  const filteredProducts = mockProducts.filter((product) =>
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+        const cats = await getCategories();
+        setCategories(cats);
+        console.log(data);
+      } catch (err) {
+        console.error('Failed to load products or categories', err);
+      }
+    })();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this product?')) return;
+    try {
+      await deleteProduct(id);
+      setProducts((p) => p.filter((x) => x.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -89,21 +104,48 @@ const Products = () => {
               <DialogHeader>
                 <DialogTitle>Add New Product</DialogTitle>
               </DialogHeader>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={async (e) => {
+                e.preventDefault();
+                const name = (document.getElementById('name') as HTMLInputElement).value;
+                const categoryId = Number(selectedCategory || 0) || null;
+                const price = (document.getElementById('price') as HTMLInputElement).value;
+                const description = (document.getElementById('description') as HTMLTextAreaElement).value;
+                const imageUrl = (document.getElementById('imageUrl') as HTMLInputElement).value;
+                const imageThumb = (document.getElementById('imageThumb') as HTMLInputElement).value || null;
+                try {
+                  const csrf = await getCsrf();
+                  const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/products`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-csrf-token': csrf,
+                    },
+                    body: JSON.stringify({ name, categoryId, price, description, imageUrl, imageThumb }),
+                  });
+                  if (!res.ok) throw new Error('Failed to create product');
+                  const created = await res.json();
+                  setProducts((p) => [{ id: created.id, name: created.name, category: created.category?.name || null, price: created.price, status: created.status ?? 'Active', image: created.imageThumb || created.imageUrl }, ...p]);
+                  setIsAddDialogOpen(false);
+                } catch (err) {
+                  console.error(err);
+                }
+              }}>
+
                 <div>
                   <Label htmlFor="name">Product Name</Label>
                   <Input id="name" placeholder="Enter product name" />
                 </div>
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select>
+                  <Select onValueChange={(category:string)=>{setSelectedCategory(category)}}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat.toLowerCase()}>
-                          {cat}
+                        <SelectItem key={cat.id} value={String(cat.id)}>
+                          {cat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -118,8 +160,46 @@ const Products = () => {
                   <Textarea id="description" placeholder="Enter product description" />
                 </div>
                 <div>
-                  <Label htmlFor="image">Image URL</Label>
-                  <Input id="image" placeholder="Enter image URL" />
+                  <Label htmlFor="image">Image</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="imageFile"
+                      type="file"
+                      accept="image/*"
+                      className="block"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const csrf = await getCsrf();
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                            method: 'POST',
+                            body: fd,
+                            credentials: 'include',
+                            headers: {
+                              'x-csrf-token': csrf,
+                            },
+                          });
+                          if (!res.ok) throw new Error('Upload failed');
+                          const data = await res.json();
+                          // set preview and hidden fields
+                          const img = document.getElementById('imagePreview') as HTMLImageElement | null;
+                          if (img) img.src = data.thumbUrl || data.url;
+                          const urlInput = document.getElementById('imageUrl') as HTMLInputElement | null;
+                          if (urlInput) urlInput.value = data.url;
+                          const thumbInput = document.getElementById('imageThumb') as HTMLInputElement | null;
+                          if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    <img id="imagePreview" alt="preview" className="h-12 w-12 rounded-lg object-cover" />
+                  </div>
+                  <input id="imageUrl" type="hidden" />
+                  <input id="imageThumb" type="hidden" />
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button
@@ -136,6 +216,116 @@ const Products = () => {
                 </div>
               </form>
             </DialogContent>
+
+            {/* Edit dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Product</DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4" onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!editingProduct) return;
+                  const name = (document.getElementById('name') as HTMLInputElement).value;
+                  const categoryId = Number(selectedCategory || 0) || null;
+                  const price = (document.getElementById('price') as HTMLInputElement).value;
+                  const description = (document.getElementById('description') as HTMLTextAreaElement).value;
+                  const imageUrl = (document.getElementById('imageUrl') as HTMLInputElement).value;
+                  const imageThumb = (document.getElementById('imageThumb') as HTMLInputElement).value || null;
+                  try {
+                    const updated = await updateProduct(editingProduct.id, { name, categoryId, price, description, imageUrl, imageThumb });
+                    setProducts((p) => p.map((x) => x.id === updated.id ? { ...x, ...{ name: updated.name, category: updated.category?.name || null, price: updated.price, image: updated.imageThumb || updated.imageUrl } } : x));
+                    setIsEditDialogOpen(false);
+                    setEditingProduct(null);
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }}>
+                  <div>
+                    <Label htmlFor="name">Product Name</Label>
+                    <Input id="name" placeholder="Enter product name" />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Select onValueChange={(category:string)=>{setSelectedCategory(category)}} value={selectedCategory}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={String(cat.id)}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="price">Price</Label>
+                    <Input id="price" placeholder="₹ per kg" />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" placeholder="Enter product description" />
+                  </div>
+                  <div>
+                    <Label htmlFor="image">Image</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        id="imageFile"
+                        type="file"
+                        accept="image/*"
+                        className="block"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const csrf = await getCsrf();
+                            const fd = new FormData();
+                            fd.append('file', file);
+                            const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                              method: 'POST',
+                              body: fd,
+                              credentials: 'include',
+                              headers: {
+                                'x-csrf-token': csrf,
+                              },
+                            });
+                            if (!res.ok) throw new Error('Upload failed');
+                            const data = await res.json();
+                            // set preview and hidden fields
+                            const img = document.getElementById('imagePreview') as HTMLImageElement | null;
+                            if (img) img.src = data.thumbUrl || data.url;
+                            const urlInput = document.getElementById('imageUrl') as HTMLInputElement | null;
+                            if (urlInput) urlInput.value = data.url;
+                            const thumbInput = document.getElementById('imageThumb') as HTMLInputElement | null;
+                            if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}
+                      />
+                      <img id="imagePreview" alt="preview" className="h-12 w-12 rounded-lg object-cover" />
+                    </div>
+                    <input id="imageUrl" type="hidden" />
+                    <input id="imageThumb" type="hidden" />
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => { setIsEditDialogOpen(false); setEditingProduct(null); }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90">
+                      Save Changes
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </Dialog>
         </div>
 
@@ -157,14 +347,14 @@ const Products = () => {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={product.image}
+                        src={product.image || product.imageThumb || '/placeholder.png'}
                         alt={product.name}
                         className="h-12 w-12 rounded-lg object-cover"
                       />
                       <span className="font-medium">{product.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.category?.name || product.category}</TableCell>
                   <TableCell>{product.price}</TableCell>
                   <TableCell>
                     <span
@@ -185,11 +375,32 @@ const Products = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          // open edit dialog and prefill
+                          const p = product;
+                          setEditingProduct(p);
+                          // prefill form fields
+                          setTimeout(() => {
+                            const nameEl = document.getElementById('name') as HTMLInputElement | null;
+                            const priceEl = document.getElementById('price') as HTMLInputElement | null;
+                            const descEl = document.getElementById('description') as HTMLTextAreaElement | null;
+                            const imageEl = document.getElementById('imagePreview') as HTMLImageElement | null;
+                            const imageUrlEl = document.getElementById('imageUrl') as HTMLInputElement | null;
+                            const imageThumbEl = document.getElementById('imageThumb') as HTMLInputElement | null;
+                            if (nameEl) nameEl.value = p.name || '';
+                            if (priceEl) priceEl.value = p.price || '';
+                            if (descEl) descEl.value = p.description || '';
+                            if (imageEl) imageEl.src = p.image || '';
+                            if (imageUrlEl) imageUrlEl.value = p.imageUrl || p.image || '';
+                            if (imageThumbEl) imageThumbEl.value = p.imageThumb || '';
+                            if (p.category && p.category.id) setSelectedCategory(String(p.category.id));
+                          }, 10);
+                          setIsEditDialogOpen(true);
+                        }}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(product.id)}>
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>

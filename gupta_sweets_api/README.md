@@ -83,3 +83,80 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+---
+
+### Auth & sessions (setup)
+
+This project now includes an authentication module with:
+- Sign-in (POST /auth/signin) — returns access cookie and refresh cookie
+- Refresh (POST /auth/refresh) — rotate refresh token and set new cookies
+- Signout (POST /auth/signout) — deletes session & clears cookies
+- CSRF token (GET /auth/csrf) — returns a CSRF token from `csurf` middleware
+
+To finish setup:
+1. Install new dependencies:
+
+```bash
+npm install @nestjs/jwt bcrypt csurf
+# optionally: npm install ioredis --save if you want Redis-based rate limiting
+```
+
+2. Run the Prisma migration to add `Session` model and `Role` enum:
+
+```bash
+npm run migrate -- --name add_sessions_and_roles
+```
+
+3. Provide environment variables in `.env`:
+
+```
+ACCESS_TOKEN_SECRET=change-me
+FRONTEND_URL=http://localhost:5173
+REDIS_URL=redis://127.0.0.1:6379
+# Set DISABLE_REDIS=1 to disable Redis and use an in-memory rate limiter (single-process only)
+DISABLE_REDIS=0
+
+# Cloudinary (for image uploads)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+Add a Cloudinary account and set the env vars above so the `/upload` endpoint can store images and generate thumbnails.
+4. Start the app:
+
+```bash
+npm run start:dev
+```
+
+Tips:
+- Protect admin endpoints like:
+
+```ts
+@UseGuards(JwtAuthGuard, AdminThrottleGuard)
+@Controller('admin')
+export class AdminController { }
+```
+
+- The sign-in endpoint is protected by a Redis-backed limiter (10 req/min by IP). Admin routes can use `AdminThrottleGuard` to apply a tighter 5 req/min policy.
+
+---
+
+## Quick admin setup
+
+1. Create an admin user:
+
+```bash
+# Using environment variables
+ADMIN_EMAIL=admin@local ADMIN_PASSWORD=changeme pnpm run create-admin
+
+# Or via args
+pnpm run create-admin -- admin@local changeme
+```
+
+2. Set `FRONTEND_URL` to your frontend origin (e.g., `http://localhost:5173`) and ensure frontend `VITE_API_URL` points to the API (e.g. `http://localhost:3000`).
+
+3. The admin UI will call `GET /auth/me` (protected) to verify the user is `ADMIN` and redirect to `/admin/signin` if necessary.
+
+4. For production, ensure `ACCESS_TOKEN_SECRET` is set and `NODE_ENV=production` so cookies are sent with `secure` flag.

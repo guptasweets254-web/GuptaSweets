@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Session {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  refreshTokenHash String
+  ip               String?
+  userAgent        String?
+  createdAt        DateTime @default(now())
+  expiresAt        DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  slug         String?  @unique
+  description  String?
+  price        String
+  categoryId   Int?
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status       String   @default("Active")
+  imageUrl     String?
+  imageThumb   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  slug       String    @unique
+  createdAt  DateTime  @default(now())
+  products   Product[]
+}
+
+model GalleryImage {
+  id         Int      @id @default(autoincrement())
+  title      String
+  category   String?
+  imageUrl   String
+  thumbUrl   String?
+  createdAt  DateTime @default(now())
+}
+
+model Testimonial {
+  id              Int      @id @default(autoincrement())
+  name            String
+  location        String
+  text            String
+  avatarUrl       String?
+  avatarThumbUrl  String?
+  rating          Int?
+  createdAt       DateTime @default(now())
+}

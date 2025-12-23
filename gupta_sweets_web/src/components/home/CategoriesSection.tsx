@@ -1,52 +1,23 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const categories = [
-  {
-    id: 1,
-    name: "Traditional Sweets",
-    description: "Classic Indian mithai made with pure ghee",
-    image: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=400&h=300&fit=crop",
-    items: ["Barfi", "Peda", "Halwa"],
-  },
-  {
-    id: 2,
-    name: "Bengali Sweets",
-    description: "Authentic Mishti from Bengal",
-    image: "https://images.unsplash.com/photo-1605197161470-5c33f0e7908e?w=400&h=300&fit=crop",
-    items: ["Rasgulla", "Rasmalai", "Sandesh"],
-  },
-  {
-    id: 3,
-    name: "Dry Fruit Sweets",
-    description: "Premium sweets with rich dry fruits",
-    image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400&h=300&fit=crop",
-    items: ["Kaju Katli", "Badam Barfi", "Pista Roll"],
-  },
-  {
-    id: 4,
-    name: "Namkeen & Snacks",
-    description: "Crispy savories for every occasion",
-    image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop",
-    items: ["Samosa", "Kachori", "Namak Pare"],
-  },
-  {
-    id: 5,
-    name: "Cakes & Desserts",
-    description: "Modern fusion desserts",
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop",
-    items: ["Chocolate Cake", "Pastries", "Brownies"],
-  },
-  {
-    id: 6,
-    name: "Festive Specials",
-    description: "Seasonal delights for celebrations",
-    image: "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?w=400&h=300&fit=crop",
-    items: ["Diwali Box", "Wedding Tray", "Gift Hampers"],
-  },
-];
+import { useEffect, useState } from 'react';
+import { getCategories } from '@/lib/api';
 
 const CategoriesSection = () => {
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cats = await getCategories();
+        setCategories(cats);
+      } catch (err) {
+        console.error('Failed to load categories', err);
+      }
+    })();
+  }, []);
+
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -67,14 +38,14 @@ const CategoriesSection = () => {
           {categories.map((category, index) => (
             <Link
               key={category.id}
-              to="/menu"
+              to={`/menu?category=${category.slug}`}
               className="group card-festive transition-all duration-300 hover:-translate-y-2"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={category.image}
+                  src={category.image || 'https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=400&h=300&fit=crop'}
                   alt={category.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -92,7 +63,7 @@ const CategoriesSection = () => {
                   {category.description}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {category.items.map((item) => (
+                  {(category.items || []).map((item: string) => (
                     <span
                       key={item}
                       className="text-xs px-2 py-1 bg-accent/10 text-accent-foreground rounded-full"

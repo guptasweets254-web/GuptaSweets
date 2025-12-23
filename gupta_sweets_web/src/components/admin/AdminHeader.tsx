@@ -33,14 +33,33 @@ const AdminHeader = ({ title, subtitle }: AdminHeaderProps) => {
           </span>
         </Button>
 
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-saffron">
-            <User className="h-4 w-4 text-white" />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-saffron">
+              <User className="h-4 w-4 text-white" />
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium text-foreground">Admin</p>
+              <p className="text-xs text-muted-foreground">admin@guptasweets.com</p>
+            </div>
           </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium text-foreground">Admin</p>
-            <p className="text-xs text-muted-foreground">admin@guptasweets.com</p>
-          </div>
+
+          <button
+            onClick={async () => {
+              try {
+                // lazy import to avoid circular deps in some apps
+                const module = await import('@/lib/auth');
+                await module.signOut();
+                window.location.href = '/admin/signin';
+              } catch (e) {
+                console.error(e);
+                window.location.href = '/admin/signin';
+              }
+            }}
+            className="px-3 py-2 rounded bg-red-600 text-white text-sm"
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </header>

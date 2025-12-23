@@ -1,52 +1,37 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Priya Sharma",
-    location: "Delhi",
-    rating: 5,
-    text: "The Kaju Katli from Gupta Sweets is absolutely divine! It melts in your mouth. I've been ordering from them for all our family celebrations for the past 10 years.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Rajesh Agarwal",
-    location: "Noida",
-    rating: 5,
-    text: "Best sweets in Delhi! The purity and taste remind me of my grandmother's homemade sweets. Their Diwali gift boxes are always a hit with our clients.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Anita Gupta",
-    location: "Gurgaon",
-    rating: 5,
-    text: "I ordered sweets for my daughter's wedding from Gupta Sweets. The presentation was beautiful and guests couldn't stop praising the quality. Highly recommended!",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
-  },
-  {
-    id: 4,
-    name: "Vikram Singh",
-    location: "Delhi",
-    rating: 5,
-    text: "The rasgullas here are unmatched! Soft, spongy, and perfectly sweet. My go-to place for all Bengali sweets. The service is always warm and welcoming.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
-  },
-];
+import { getTestimonials } from "@/lib/api";
+
+const testimonials = [];
+
+const useTestimonials = () => {
+  const [items, setItems] = useState<any[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTestimonials();
+        setItems(data);
+      } catch (err) {
+        console.error('Failed to load testimonials', err);
+      }
+    })();
+  }, []);
+  return items;
+};
 
 const TestimonialsSection = () => {
+  const items = useTestimonials();
   const [current, setCurrent] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
     if (!isAutoPlaying) return;
     const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % testimonials.length);
+      setCurrent((prev) => (prev + 1) % Math.max(1, items.length));
     }, 5000);
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, items.length]);
 
   const next = () => {
     setIsAutoPlaying(false);
@@ -86,36 +71,36 @@ const TestimonialsSection = () => {
             <div className="text-center">
               {/* Stars */}
               <div className="flex justify-center gap-1 mb-6">
-                {[...Array(testimonials[current].rating)].map((_, i) => (
+                {[...Array(items[current]?.rating || 0)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-accent fill-accent" />
                 ))}
               </div>
 
               {/* Text */}
               <p className="text-lg md:text-xl text-foreground/90 italic mb-8 leading-relaxed">
-                "{testimonials[current].text}"
+                "{items[current]?.text || ''}"
               </p>
 
               {/* Author */}
               <div className="flex items-center justify-center gap-4">
                 <img
-                  src={testimonials[current].avatar}
-                  alt={testimonials[current].name}
+                  src={items[current]?.avatarThumbUrl}
+                  alt={items[current]?.name || 'testimonial'}
                   className="w-14 h-14 rounded-full object-cover border-2 border-accent"
                 />
                 <div className="text-left">
                   <h4 className="font-semibold text-foreground">
-                    {testimonials[current].name}
+                    {items[current]?.name}
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    {testimonials[current].location}
+                    {items[current]?.location}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-center gap-4 mt-8">
+            {/* <div className="flex justify-center gap-4 mt-8">
               <button
                 onClick={prev}
                 className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-accent hover:text-foreground transition-colors"
@@ -130,11 +115,11 @@ const TestimonialsSection = () => {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-            </div>
+            </div> */}
 
             {/* Dots */}
             <div className="flex justify-center gap-2 mt-6">
-              {testimonials.map((_, index) => (
+              {items.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => {

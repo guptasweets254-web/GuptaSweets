@@ -15,9 +15,11 @@ import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
 import GalleryAdmin from "./pages/admin/GalleryAdmin";
 import Testimonials from "./pages/admin/Testimonials";
+import Categories from "./pages/admin/Categories";
 import Offers from "./pages/admin/Offers";
 import Inquiries from "./pages/admin/Inquiries";
 import Settings from "./pages/admin/Settings";
+import SignIn from "./pages/admin/SignIn";
 
 const queryClient = new QueryClient();
 
@@ -36,11 +38,13 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             
             {/* Admin Routes */}
+            <Route path="/admin/signin" element={<SignIn />} />
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="gallery" element={<GalleryAdmin />} />
               <Route path="testimonials" element={<Testimonials />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="offers" element={<Offers />} />
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="settings" element={<Settings />} />

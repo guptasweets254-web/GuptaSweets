@@ -1,58 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useLocation } from 'react-router-dom';
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Search } from "lucide-react";
-
-const menuCategories = [
-  { id: "all", name: "All Items" },
-  { id: "milk-sweets", name: "Milk Sweets" },
-  { id: "dry-fruit", name: "Dry Fruit Sweets" },
-  { id: "laddoos", name: "Laddoos & Mithai" },
-  { id: "bengali", name: "Bengali Sweets" },
-  { id: "namkeen", name: "Namkeen & Savories" },
-  { id: "cakes", name: "Cakes & Pastries" },
-];
-
-const menuItems = [
-  // Milk Sweets
-  { id: 1, name: "Milk Barfi", category: "milk-sweets", price: "₹400/kg", description: "Classic milk-based barfi with cardamom", image: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=300&h=200&fit=crop" },
-  { id: 2, name: "Khoya Peda", category: "milk-sweets", price: "₹450/kg", description: "Soft khoya pedas with saffron", image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=300&h=200&fit=crop" },
-  { id: 3, name: "Kalakand", category: "milk-sweets", price: "₹500/kg", description: "Grainy milk cake with cardamom", image: "https://images.unsplash.com/photo-1605197161470-5c33f0e7908e?w=300&h=200&fit=crop" },
-  
-  // Dry Fruit Sweets
-  { id: 4, name: "Kaju Katli", category: "dry-fruit", price: "₹800/kg", description: "Premium cashew diamond cuts", image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=300&h=200&fit=crop" },
-  { id: 5, name: "Badam Barfi", category: "dry-fruit", price: "₹750/kg", description: "Rich almond barfi with silver foil", image: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=300&h=200&fit=crop" },
-  { id: 6, name: "Pista Roll", category: "dry-fruit", price: "₹900/kg", description: "Rolled pistachio delight", image: "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?w=300&h=200&fit=crop" },
-  { id: 7, name: "Anjeer Barfi", category: "dry-fruit", price: "₹700/kg", description: "Fig and dry fruit barfi", image: "https://images.unsplash.com/photo-1605197161470-5c33f0e7908e?w=300&h=200&fit=crop" },
-  
-  // Laddoos
-  { id: 8, name: "Motichoor Laddoo", category: "laddoos", price: "₹500/kg", description: "Traditional boondi laddoos", image: "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?w=300&h=200&fit=crop" },
-  { id: 9, name: "Besan Laddoo", category: "laddoos", price: "₹450/kg", description: "Ghee-roasted gram flour laddoos", image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=300&h=200&fit=crop" },
-  { id: 10, name: "Coconut Laddoo", category: "laddoos", price: "₹400/kg", description: "Fresh coconut laddoos", image: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=300&h=200&fit=crop" },
-  
-  // Bengali Sweets
-  { id: 11, name: "Rasgulla", category: "bengali", price: "₹350/kg", description: "Soft spongy cottage cheese balls", image: "https://images.unsplash.com/photo-1605197161470-5c33f0e7908e?w=300&h=200&fit=crop" },
-  { id: 12, name: "Rasmalai", category: "bengali", price: "₹500/kg", description: "Creamy milk-soaked patties", image: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=300&h=200&fit=crop" },
-  { id: 13, name: "Sandesh", category: "bengali", price: "₹450/kg", description: "Delicate Bengali cottage cheese sweet", image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=300&h=200&fit=crop" },
-  { id: 14, name: "Chomchom", category: "bengali", price: "₹400/kg", description: "Cylindrical Bengali sweet", image: "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?w=300&h=200&fit=crop" },
-  
-  // Namkeen
-  { id: 15, name: "Samosa", category: "namkeen", price: "₹20/pc", description: "Crispy potato-filled triangles", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&h=200&fit=crop" },
-  { id: 16, name: "Kachori", category: "namkeen", price: "₹25/pc", description: "Spiced lentil-filled crispy balls", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&h=200&fit=crop" },
-  { id: 17, name: "Namak Pare", category: "namkeen", price: "₹200/kg", description: "Crunchy salted diamond snacks", image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&h=200&fit=crop" },
-  
-  // Cakes
-  { id: 18, name: "Chocolate Truffle", category: "cakes", price: "₹800/kg", description: "Rich chocolate layered cake", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop" },
-  { id: 19, name: "Black Forest", category: "cakes", price: "₹750/kg", description: "Classic cherry chocolate cake", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop" },
-  { id: 20, name: "Pineapple Cake", category: "cakes", price: "₹650/kg", description: "Fresh pineapple cream cake", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&h=200&fit=crop" },
-];
+import { getProducts, getCategories } from "@/lib/api";
 
 const Menu = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]);
 
-  const filteredItems = menuItems.filter((item) => {
+  const location = useLocation();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const cats = await getCategories();
+        setCategories([{ id: 'all', name: 'All Items', slug: 'all' }, ...cats]);
+        const prods = await getProducts();
+        // Normalize products for UI
+        setItems(prods.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category?.slug || null,
+          price: p.price,
+          description: p.description,
+          image: p.imageThumb || p.imageUrl,
+        })));
+
+        // check url for ?category=slug
+        const qp = new URLSearchParams(location.search).get('category');
+        if (qp) setActiveCategory(qp);
+      } catch (err) {
+        console.error('Failed to load menu', err);
+      }
+    })();
+  }, [location.search]);
+
+  const filteredItems = items.filter((item) => {
     const matchesCategory = activeCategory === "all" || item.category === activeCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -105,12 +92,12 @@ const Menu = () => {
 
             {/* Category Tabs */}
             <div className="flex flex-wrap justify-center gap-2 mb-12">
-              {menuCategories.map((category) => (
+              {categories.map((category) => (
                 <button
-                  key={category.id}
-                  onClick={() => setActiveCategory(category.id)}
+                  key={category.slug || category.id}
+                  onClick={() => setActiveCategory(category.slug || category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeCategory === category.id
+                    activeCategory === (category.slug || category.id)
                       ? "bg-gradient-gold text-foreground shadow-lg"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}

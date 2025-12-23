@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, Star, MoreVertical } from "lucide-react";
+import { getTestimonials, deleteTestimonial } from "@/lib/api";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,52 +21,37 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 
-const mockTestimonials = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    location: "Delhi",
-    rating: 5,
-    review: "Best sweets in town! The Kaju Katli is absolutely divine. We've been ordering from Gupta Sweets for all our family functions.",
-    date: "2024-01-15",
-    featured: true,
-  },
-  {
-    id: 2,
-    name: "Priya Gupta",
-    location: "Mumbai",
-    rating: 5,
-    review: "Amazing quality and taste. The Diwali gift boxes were a huge hit among our relatives. Highly recommended!",
-    date: "2024-01-10",
-    featured: true,
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    location: "Bangalore",
-    rating: 4,
-    review: "Ordered for my daughter's wedding. Everyone loved the sweets. Will definitely order again.",
-    date: "2024-01-05",
-    featured: false,
-  },
-  {
-    id: 4,
-    name: "Sneha Patel",
-    location: "Ahmedabad",
-    rating: 5,
-    review: "The authentic taste of traditional Indian sweets. Feels like homemade!",
-    date: "2023-12-28",
-    featured: false,
-  },
-];
+
 
 const Testimonials = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
 
-  const filteredTestimonials = mockTestimonials.filter((testimonial) =>
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTestimonials();
+        setTestimonials(data);
+      } catch (err) {
+        console.error('Failed to load testimonials', err);
+      }
+    })();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this testimonial?')) return;
+    try {
+      await deleteTestimonial(id);
+      setTestimonials((p) => p.filter((x) => x.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredTestimonials = testimonials.filter((testimonial) =>
     testimonial.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    testimonial.review.toLowerCase().includes(searchQuery.toLowerCase())
+    (testimonial.review || testimonial.text || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -96,7 +82,35 @@ const Testimonials = () => {
               <DialogHeader>
                 <DialogTitle>Add New Testimonial</DialogTitle>
               </DialogHeader>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={async (e) => {
+                e.preventDefault();
+                const name = (document.getElementById('name') as HTMLInputElement).value;
+                const location = (document.getElementById('location') as HTMLInputElement).value;
+                const rating = Number((document.querySelector('[data-rating]') as HTMLInputElement)?.value || 5);
+                const review = (document.getElementById('review') as HTMLTextAreaElement).value;
+                const featured = (document.getElementById('featured') as HTMLInputElement).checked;
+                const avatarUrl = (document.getElementById('avatarUrl') as HTMLInputElement).value || null;
+                const avatarThumb = (document.getElementById('avatarThumb') as HTMLInputElement).value || null;
+                try {
+                  const csrf = await (await import('@/lib/auth')).getCsrf();
+                  const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/testimonials`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-csrf-token': csrf,
+                    },
+                    body: JSON.stringify({ name, location, rating, text: review, featured, avatarUrl, avatarThumbUrl: avatarThumb }),
+                  });
+                  if (!res.ok) throw new Error('Failed to create testimonial');
+                  const created = await res.json();
+                  setTestimonials((p) => [{ id: created.id, name: created.name, rating: created.rating ?? 5, review: created.text, location: created.location ?? '', date: new Date(created.createdAt).toISOString().slice(0,10), featured: created.featured ?? false }, ...p]);
+                  setIsAddDialogOpen(false);
+                } catch (err) {
+                  console.error(err);
+                }
+              }}>
+
                 <div>
                   <Label htmlFor="name">Customer Name</Label>
                   <Input id="name" placeholder="Enter customer name" />
@@ -118,6 +132,47 @@ const Testimonials = () => {
                 <div>
                   <Label htmlFor="review">Review</Label>
                   <Textarea id="review" placeholder="Enter customer review" rows={4} />
+                </div>
+                <div>
+                  <Label htmlFor="avatar">Avatar</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="avatarFile"
+                      type="file"
+                      accept="image/*"
+                      className="block"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const csrf = await (await import('@/lib/auth')).getCsrf();
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                            method: 'POST',
+                            body: fd,
+                            credentials: 'include',
+                            headers: {
+                              'x-csrf-token': csrf,
+                            },
+                          });
+                          if (!res.ok) throw new Error('Upload failed');
+                          const data = await res.json();
+                          const img = document.getElementById('avatarPreview') as HTMLImageElement | null;
+                          if (img) img.src = data.thumbUrl || data.url;
+                          const urlInput = document.getElementById('avatarUrl') as HTMLInputElement | null;
+                          if (urlInput) urlInput.value = data.url;
+                          const thumbInput = document.getElementById('avatarThumb') as HTMLInputElement | null;
+                          if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    <img id="avatarPreview" alt="avatar preview" className="h-12 w-12 rounded-full object-cover" />
+                  </div>
+                  <input id="avatarUrl" type="hidden" />
+                  <input id="avatarThumb" type="hidden" />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="featured">Featured on Homepage</Label>
@@ -150,9 +205,13 @@ const Testimonials = () => {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-saffron/10 text-lg font-semibold text-saffron">
-                    {testimonial.name.charAt(0)}
-                  </div>
+                  {testimonial.avatarUrl ? (
+                    <img src={testimonial.avatarUrl} alt={testimonial.name} className="h-12 w-12 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-saffron/10 text-lg font-semibold text-saffron">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold text-foreground">{testimonial.name}</p>
                     <p className="text-sm text-muted-foreground">{testimonial.location}</p>
@@ -169,7 +228,7 @@ const Testimonials = () => {
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(testimonial.id)}>
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>

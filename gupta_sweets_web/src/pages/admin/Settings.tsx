@@ -195,8 +195,42 @@ const Settings = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="ogImage">OG Image URL</Label>
-                  <Input id="ogImage" placeholder="Enter Open Graph image URL" />
+                  <Label htmlFor="ogImage">OG Image</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="ogImageFile"
+                      type="file"
+                      accept="image/*"
+                      className="block"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const csrf = await (await import('@/lib/auth')).getCsrf();
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                            method: 'POST',
+                            body: fd,
+                            credentials: 'include',
+                            headers: {
+                              'x-csrf-token': csrf,
+                            },
+                          });
+                          if (!res.ok) throw new Error('Upload failed');
+                          const data = await res.json();
+                          const img = document.getElementById('ogImagePreview') as HTMLImageElement | null;
+                          if (img) img.src = data.thumbUrl || data.url;
+                          const urlInput = document.getElementById('ogImage') as HTMLInputElement | null;
+                          if (urlInput) urlInput.value = data.url;
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    <img id="ogImagePreview" alt="preview" className="h-12 w-12 rounded-lg object-cover" />
+                  </div>
+                  <input id="ogImage" type="hidden" />
                 </div>
               </CardContent>
             </Card>

@@ -1,42 +1,56 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
 import { X, ZoomIn } from "lucide-react";
+import { getGallery } from "@/lib/api";
 
-const galleryCategories = ["All", "Sweets", "Gift Boxes", "Shop", "Events"];
-
-const galleryImages = [
-  { id: 1, src: "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=600&h=400&fit=crop", category: "Sweets", title: "Premium Barfi Collection" },
-  { id: 2, src: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600&h=400&fit=crop", category: "Sweets", title: "Kaju Katli" },
-  { id: 3, src: "https://images.unsplash.com/photo-1605197161470-5c33f0e7908e?w=600&h=400&fit=crop", category: "Sweets", title: "Bengali Rasgulla" },
-  { id: 4, src: "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?w=600&h=400&fit=crop", category: "Gift Boxes", title: "Festive Gift Hamper" },
-  { id: 5, src: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&h=400&fit=crop", category: "Sweets", title: "Fresh Samosas" },
-  { id: 6, src: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&h=400&fit=crop", category: "Sweets", title: "Celebration Cake" },
-  { id: 7, src: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&h=400&fit=crop", category: "Shop", title: "Our Sweet Counter" },
-  { id: 8, src: "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=600&h=400&fit=crop", category: "Events", title: "Wedding Catering" },
-  { id: 9, src: "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=600&h=400&fit=crop", category: "Gift Boxes", title: "Diwali Special Box" },
-  { id: 10, src: "https://images.unsplash.com/photo-1571167530149-c1105da4c2c7?w=600&h=400&fit=crop", category: "Sweets", title: "Motichoor Laddoo" },
-  { id: 11, src: "https://images.unsplash.com/photo-1587314168485-3236d6710814?w=600&h=400&fit=crop", category: "Shop", title: "Our Heritage Store" },
-  { id: 12, src: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&h=400&fit=crop", category: "Events", title: "Corporate Event" },
-];
+type GalleryImage = {
+  id: number | string;
+  imageUrl: string;
+  thumbUrl: string;
+  title: string;
+  category?: string;
+};
 
 const Gallery = () => {
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  const filteredImages = galleryImages.filter(
-    (img) => activeCategory === "All" || img.category === activeCategory
-  );
+  useEffect(() => {
+    (async () => {
+      try {
+        const data: GalleryImage[] = await getGallery();
+        console.log(data);
+        setImages(data);
+
+        const uniqueCategories = Array.from(
+          new Set(data.map((img) => img.category).filter(Boolean))
+        ) as string[];
+
+        setCategories(["All", ...uniqueCategories]);
+      } catch (err) {
+        console.error("Failed to load gallery", err);
+      }
+    })();
+  }, []);
+
+  const filteredImages =
+    activeCategory === "All"
+      ? images
+      : images.filter((img) => img.category === activeCategory);
 
   return (
     <>
       <Helmet>
         <title>Gallery - Gupta Sweets | Sweet Moments Captured</title>
-        <meta 
-          name="description" 
-          content="Explore our gallery of delicious Indian sweets, festive gift boxes, and special occasion moments at Gupta Sweets." 
+        <meta
+          name="description"
+          content="Explore our gallery of delicious Indian sweets, festive gift boxes, and special occasion moments at Gupta Sweets."
         />
       </Helmet>
+
       <Layout>
         {/* Hero Section */}
         <section className="pt-32 pb-16 bg-gradient-hero relative overflow-hidden">
@@ -56,7 +70,7 @@ const Gallery = () => {
           <div className="container mx-auto px-4">
             {/* Category Filter */}
             <div className="flex flex-wrap justify-center gap-2 mb-12">
-              {galleryCategories.map((category) => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
@@ -80,7 +94,7 @@ const Gallery = () => {
                   onClick={() => setSelectedImage(image)}
                 >
                   <img
-                    src={image.src}
+                    src={image.thumbUrl}
                     alt={image.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -105,14 +119,18 @@ const Gallery = () => {
             onClick={() => setSelectedImage(null)}
           >
             <button
-              className="absolute top-6 right-6 text-primary-foreground hover:text-accent transition-colors"
+              className="absolute top-6 right-6 text-primary-foreground hover:text-accent"
               onClick={() => setSelectedImage(null)}
             >
               <X className="w-8 h-8" />
             </button>
-            <div className="max-w-4xl max-h-[80vh] relative" onClick={(e) => e.stopPropagation()}>
+
+            <div
+              className="max-w-4xl max-h-[80vh] relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               <img
-                src={selectedImage.src}
+                src={selectedImage.imageUrl}
                 alt={selectedImage.title}
                 className="w-full h-full object-contain rounded-lg"
               />
@@ -120,7 +138,11 @@ const Gallery = () => {
                 <h3 className="font-serif text-xl font-semibold text-primary-foreground">
                   {selectedImage.title}
                 </h3>
-                <p className="text-primary-foreground/70 text-sm">{selectedImage.category}</p>
+                {selectedImage.category && (
+                  <p className="text-primary-foreground/70 text-sm">
+                    {selectedImage.category}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Trash2, Eye } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getGallery, deleteGalleryImage } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -18,27 +19,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GalleryCategories } from "@/lib/utils";
 
-const mockImages = [
-  { id: 1, title: "Kaju Katli Platter", category: "Sweets", url: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=400" },
-  { id: 2, title: "Diwali Gift Box", category: "Gift Boxes", url: "https://images.unsplash.com/photo-1547483238-2cbf881a559f?w=400" },
-  { id: 3, title: "Shop Interior", category: "Shop", url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400" },
-  { id: 4, title: "Wedding Order", category: "Events", url: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400" },
-  { id: 5, title: "Gulab Jamun", category: "Sweets", url: "https://images.unsplash.com/photo-1666190077595-43884cac5e8c?w=400" },
-  { id: 6, title: "Premium Packaging", category: "Gift Boxes", url: "https://images.unsplash.com/photo-1547483238-2cbf881a559f?w=400" },
-];
-
-const categories = ["Sweets", "Gift Boxes", "Shop", "Events", "Special Orders"];
+const categories = GalleryCategories;
 
 const GalleryAdmin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [images, setImages] = useState<any[]>([]);
+  const [addCategory, setAddCategory] = useState<string>("");
 
-  const filteredImages = mockImages.filter((image) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getGallery();
+        setImages(data);
+      } catch (err) {
+        console.error('Failed to load gallery images', err);
+      }
+    })();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this image?')) return;
+    try {
+      await deleteGalleryImage(id);
+      setImages((p) => p.filter((x) => x.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filteredImages = images.filter((image) => {
     const matchesSearch = image.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || image.category === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || (image.category || "").toString().toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -59,6 +75,7 @@ const GalleryAdmin = () => {
                 className="pl-9"
               />
             </div>
+
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="Category" />
@@ -85,14 +102,39 @@ const GalleryAdmin = () => {
               <DialogHeader>
                 <DialogTitle>Add New Image</DialogTitle>
               </DialogHeader>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={async (e) => {
+                e.preventDefault();
+                const title = (document.getElementById('title') as HTMLInputElement).value;
+                const category = addCategory;
+                const url = (document.getElementById('url') as HTMLInputElement).value;
+                const thumbUrl = (document.getElementById('thumbUrl') as HTMLInputElement).value || null;
+                try {
+                  const csrf = await (await import('@/lib/auth')).getCsrf();
+                  const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/gallery`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-csrf-token': csrf,
+                    },
+                    body: JSON.stringify({ title, category, imageUrl: url, thumbUrl }),
+                  });
+                  if (!res.ok) throw new Error('Failed to create image');
+                  const created = await res.json();
+                  setImages((p) => [{ id: created.id, title: created.title, category: created.category, url: created.imageUrl }, ...p]);
+                  setIsAddDialogOpen(false);
+                } catch (err) {
+                  console.error(err);
+                }
+              }}>
+
                 <div>
                   <Label htmlFor="title">Image Title</Label>
                   <Input id="title" placeholder="Enter image title" />
                 </div>
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select>
+                  <Select value={addCategory} onValueChange={setAddCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -106,8 +148,45 @@ const GalleryAdmin = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="url">Image URL</Label>
-                  <Input id="url" placeholder="Enter image URL" />
+                  <Label htmlFor="url">Image</Label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="imageFile"
+                      type="file"
+                      accept="image/*"
+                      className="block"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const csrf = await (await import('@/lib/auth')).getCsrf();
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                            method: 'POST',
+                            body: fd,
+                            credentials: 'include',
+                            headers: {
+                              'x-csrf-token': csrf,
+                            },
+                          });
+                          if (!res.ok) throw new Error('Upload failed');
+                          const data = await res.json();
+                          const img = document.getElementById('imagePreview') as HTMLImageElement | null;
+                          if (img) img.src = data.thumbUrl || data.url;
+                          const urlInput = document.getElementById('url') as HTMLInputElement | null;
+                          if (urlInput) urlInput.value = data.url;
+                          const thumbInput = document.getElementById('thumbUrl') as HTMLInputElement | null;
+                          if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    <img id="imagePreview" alt="preview" className="h-12 w-12 rounded-lg object-cover" />
+                  </div>
+                  <input id="url" type="hidden" />
+                  <input id="thumbUrl" type="hidden" />
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button
@@ -135,7 +214,7 @@ const GalleryAdmin = () => {
               className="group relative overflow-hidden rounded-lg border border-border bg-card"
             >
               <img
-                src={image.url}
+                src={image.url || image.imageUrl || image.thumbUrl || ''}
                 alt={image.title}
                 className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
               />
@@ -143,11 +222,11 @@ const GalleryAdmin = () => {
                 <Button
                   size="icon"
                   variant="secondary"
-                  onClick={() => setPreviewImage(image.url)}
+                  onClick={() => setPreviewImage(image.thumbUrl || image.url || image.imageUrl)}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="destructive">
+                <Button size="icon" variant="destructive" onClick={() => handleDelete(image.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

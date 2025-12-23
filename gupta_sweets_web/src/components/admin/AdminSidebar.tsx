@@ -9,12 +9,14 @@ import {
   Settings,
   LogOut,
   Store,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: Package, label: "Products", path: "/admin/products" },
+  { icon: Tag, label: "Categories", path: "/admin/categories" },
   { icon: Image, label: "Gallery", path: "/admin/gallery" },
   { icon: MessageSquare, label: "Testimonials", path: "/admin/testimonials" },
   { icon: Gift, label: "Offers", path: "/admin/offers" },
