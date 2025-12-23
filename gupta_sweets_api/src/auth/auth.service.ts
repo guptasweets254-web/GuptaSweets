@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { REFRESH_COOKIE_NAME, REFRESH_TOKEN_EXPIRES_DAYS, ACCESS_TOKEN_EXPIRES_IN, ACCESS_COOKIE_NAME } from './constants';
