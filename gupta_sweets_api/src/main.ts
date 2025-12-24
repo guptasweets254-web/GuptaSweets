@@ -7,47 +7,40 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 🔴 REQUIRED for Vercel (secure cookies + proxy)
   app.set('trust proxy', 1);
 
   app.use(cookieParser(process.env.CSRF_SECRET));
 
-  // Enable CORS FIRST (important for cookies)
   app.enableCors({
-    origin: process.env.FRONTEND_URL, // e.g. https://your-ui.vercel.app
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   });
 
-  // CSRF protection (EXCEPT auth routes)
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const csurf = require('csurf');
 
     const csrfProtection = csurf({
       cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none', // 🔴 REQUIRED for cross-site cookies
+        sameSite: 'none',
         path: '/',
       },
     });
 
     app.use((req, res, next) => {
-      // ❌ Disable CSRF for auth routes
-      if (req.path.startsWith('/auth')) {
+      // ❌ Disable CSRF for auth & csrf routes
+      if (
+        req.path.startsWith('/auth') ||
+        req.path === '/csrf'
+      ) {
         return next();
       }
       return csrfProtection(req, res, next);
     });
-  } catch (e) {
-    // csurf not installed — skip CSRF protection
-  }
+  } catch {}
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-    }),
-  );
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(process.env.PORT ?? 3000);
 }
