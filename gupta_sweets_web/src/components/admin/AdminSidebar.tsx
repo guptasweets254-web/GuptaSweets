@@ -19,9 +19,9 @@ const menuItems = [
   { icon: Tag, label: "Categories", path: "/admin/categories" },
   { icon: Image, label: "Gallery", path: "/admin/gallery" },
   { icon: MessageSquare, label: "Testimonials", path: "/admin/testimonials" },
-  { icon: Gift, label: "Offers", path: "/admin/offers" },
+  // { icon: Gift, label: "Offers", path: "/admin/offers" },
   { icon: Mail, label: "Inquiries", path: "/admin/inquiries" },
-  { icon: Settings, label: "Settings", path: "/admin/settings" },
+  // { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
 const AdminSidebar = () => {

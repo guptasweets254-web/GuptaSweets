@@ -67,7 +67,7 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Secondary Stats */}
+        {/* Secondary Stats
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="Page Views"
@@ -101,12 +101,12 @@ const Dashboard = () => {
             icon={TrendingUp}
             iconColor="bg-orange-600"
           />
-        </div>
+        </div> */}
 
         {/* Recent Activity */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="mt-6 grid gap-6 lg:grid-cols-1">
           {/* Recent Orders */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="text-lg">Recent WhatsApp Orders</CardTitle>
             </CardHeader>
@@ -139,7 +139,7 @@ const Dashboard = () => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Recent Inquiries */}
           <Card>
