@@ -122,7 +122,7 @@ const Menu = () => {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute top-3 right-3 bg-accent text-foreground text-sm font-semibold px-3 py-1 rounded-full">
-                      {item.price}
+                      ₹{item.price}
                     </div>
                   </div>
 
