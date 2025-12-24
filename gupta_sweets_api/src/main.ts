@@ -29,13 +29,15 @@ async function bootstrap() {
     });
 
     app.use((req, res, next) => {
-      // ❌ Disable CSRF for auth & csrf routes
+      // ❌ Only skip CSRF validation for login/register
       if (
-        req.path.startsWith('/auth') ||
-        req.path === '/csrf'
+        req.method === 'POST' &&
+        (req.path === '/auth/login' || req.path === '/auth/register')
       ) {
         return next();
       }
+
+      // ✅ CSRF must run for /auth/csrf
       return csrfProtection(req, res, next);
     });
   } catch {}
