@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
 import type { Request, Response } from 'express';
-import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME, CSRF_HEADER_KEY, REFRESH_TOKEN_EXPIRES_DAYS } from './constants';
+import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME, REFRESH_TOKEN_EXPIRES_DAYS } from './constants';
 import { RedisRateLimiterService } from '../common/redis-rate-limiter.service';
 import { AdminThrottleGuard } from './guards/admin-throttle.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -29,9 +29,9 @@ export class AuthController {
   @Post('signin')
   async signin(@Body() dto: SignInDto, @Req() req: Request, @Res() res: Response) {
     // server-side rate limiting via Redis
-    const ipKey = `signin:${req.ip}`;
-    const { allowed } = await this.limiter.consume(ipKey, 10, 60); // 10 per minute
-    if (!allowed) return res.status(429).json({ message: 'Too many signin attempts' });
+    // const ipKey = `signin:${req.ip}`;
+    // const { allowed } = await this.limiter.consume(ipKey, 10, 60); // 10 per minute
+    // if (!allowed) return res.status(429).json({ message: 'Too many signin attempts' });
 
     const user = await this.auth.validateUser(dto.email, dto.password);
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
