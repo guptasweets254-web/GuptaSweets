@@ -17,7 +17,7 @@ import { AdminRoleGuard } from './guards/admin-role.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, RedisRateLimiterService, AdminThrottleGuard],
+  providers: [AuthService, RedisRateLimiterService, AdminThrottleGuard, JwtAuthGuard, AdminRoleGuard],
   exports: [AuthService, RedisRateLimiterService, AdminThrottleGuard, JwtAuthGuard, AdminRoleGuard, JwtModule],
 })
 export class AuthModule {}

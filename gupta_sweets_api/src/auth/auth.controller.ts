@@ -6,6 +6,7 @@ import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME, REFRESH_TOKEN_EXPIRES_DAYS } f
 import { RedisRateLimiterService } from '../common/redis-rate-limiter.service';
 import { AdminThrottleGuard } from './guards/admin-throttle.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from '../common/decorators/public-decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     return { id: user.id, name: user.name, email: user.email, role: user.role };
   }
 
+  @Public()
   @Post('signin')
   async signin(@Body() dto: SignInDto, @Req() req: Request, @Res() res: Response) {
     // server-side rate limiting via Redis
