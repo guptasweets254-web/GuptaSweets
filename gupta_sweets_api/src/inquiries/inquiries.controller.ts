@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, U
 import { InquiriesService } from './inquiries.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminRoleGuard } from '../auth/guards/admin-role.guard';
-import { Public } from 'src/common/decorators/public-decorator';
+import { Public } from '../common/decorators/public-decorator';
 
 @Controller('inquiries')
 export class InquiriesController {

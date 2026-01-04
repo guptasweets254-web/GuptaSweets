@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsUrl } from 'class-validator';
-import { EmptyStringToUndefined } from 'src/common/decorators/empty-string-to-undefined-decorator';
+import { EmptyStringToUndefined } from '../../common/decorators/empty-string-to-undefined-decorator';
 
 export class UpdateSettingsDto {
   @IsOptional()

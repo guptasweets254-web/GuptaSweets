@@ -4,7 +4,7 @@ import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminRoleGuard } from '../auth/guards/admin-role.guard';
 import { ValidationPipe } from '@nestjs/common';
-import { Public } from 'src/common/decorators/public-decorator';
+import { Public } from '../common/decorators/public-decorator'
 
 @Controller('settings')
 export class SettingsController {
