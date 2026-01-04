@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Instagram, Facebook, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Instagram, Facebook, Clock, Twitter, Youtube } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Footer = () => {
+  const bussinessDetails = useSettings();
   return (
     <footer className="bg-maroon text-primary-foreground relative overflow-hidden">
       {/* Decorative Pattern */}
@@ -13,34 +15,73 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center">
-                <span className="font-serif text-xl font-bold text-foreground">G</span>
+                {bussinessDetails.settings?.logoUrl ? (
+              <img src={bussinessDetails.settings?.logoUrl} alt="Logo" className="w-full h-full object-cover rounded-full" />
+              ) : (
+              <span className="font-serif text-xl font-bold text-foreground">{bussinessDetails.settings?.siteName[0]}</span>
+              )}
               </div>
               <div>
-                <h3 className="font-serif text-xl font-bold">Gupta Sweets</h3>
-                <p className="text-sm opacity-80">Since 1975</p>
+                <h3 className="font-serif text-xl font-bold">{bussinessDetails.settings?.siteName}</h3>
+                <p className="text-sm opacity-80">Since 1993</p>
               </div>
             </div>
             <p className="text-sm opacity-80 leading-relaxed mb-4">
-              Crafting moments of sweetness with pure ingredients and traditional recipes 
-              passed down through generations.
+              {bussinessDetails.settings?.tagline || 'Authentic Indian sweets made with pure desi ghee and traditional recipes.'}
             </p>
             <div className="flex gap-3">
+              {
+                bussinessDetails.settings?.instagram ? 
+                <>
               <a
-                href="https://instagram.com"
+                href={bussinessDetails.settings?.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent hover:text-foreground transition-all"
               >
                 <Instagram size={18} />
               </a>
+              </> : null
+            }
+            {
+                bussinessDetails.settings?.facebook ? 
+                <>
               <a
-                href="https://facebook.com"
+                href={bussinessDetails.settings?.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent hover:text-foreground transition-all"
               >
                 <Facebook size={18} />
               </a>
+              </> : null
+            }
+            {
+                bussinessDetails.settings?.twitter ? 
+                <>
+              <a
+                href={bussinessDetails.settings?.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent hover:text-foreground transition-all"
+              >
+                <Twitter size={18} />
+              </a>
+              </> : null
+            }
+            {
+                bussinessDetails.settings?.youtube ? 
+                <>
+              <a
+                href={bussinessDetails.settings?.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center hover:bg-accent hover:text-foreground transition-all"
+              >
+                <Youtube size={18} />
+              </a>
+              </> : null
+            }
             </div>
           </div>
 
@@ -67,18 +108,18 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm opacity-80">
                 <MapPin size={18} className="flex-shrink-0 mt-0.5" />
-                <span>123 Sweet Lane, Chandni Chowk, Old Delhi, Delhi 110006</span>
+                <span>{bussinessDetails.settings?.address}</span>
               </li>
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Phone size={18} className="flex-shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-accent transition-colors">
-                  +91 98765 43210
+                <a href={`tel:+91${bussinessDetails.settings?.phone?.replace(/\D/g, '')}`} className="hover:text-accent transition-colors">
+                  +91 {bussinessDetails.settings?.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Mail size={18} className="flex-shrink-0" />
-                <a href="mailto:info@guptasweets.com" className="hover:text-accent transition-colors">
-                  info@guptasweets.com
+                <a href={`mailto:${bussinessDetails.settings?.email}`} className="hover:text-accent transition-colors">
+                  {bussinessDetails.settings?.email}
                 </a>
               </li>
             </ul>
@@ -91,15 +132,7 @@ const Footer = () => {
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Clock size={18} className="flex-shrink-0" />
                 <div>
-                  <p>Monday - Saturday</p>
-                  <p className="text-accent">8:00 AM - 9:00 PM</p>
-                </div>
-              </li>
-              <li className="flex items-center gap-3 text-sm opacity-80">
-                <Clock size={18} className="flex-shrink-0" />
-                <div>
-                  <p>Sunday</p>
-                  <p className="text-accent">9:00 AM - 8:00 PM</p>
+                  {bussinessDetails.settings?.businessHours}
                 </div>
               </li>
             </ul>
@@ -109,7 +142,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-accent/20 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm opacity-60">
-            © {new Date().getFullYear()} Gupta Sweets. All rights reserved.
+            © {new Date().getFullYear()} {bussinessDetails.settings?.siteName}. All rights reserved.
           </p>
           <p className="text-sm opacity-60">
             Made with ❤️ for sweet lovers

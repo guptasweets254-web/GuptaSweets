@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import SiteMeta from "./components/SiteMeta";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import Gallery from "./pages/Gallery";
@@ -20,16 +21,19 @@ import Offers from "./pages/admin/Offers";
 import Inquiries from "./pages/admin/Inquiries";
 import Settings from "./pages/admin/Settings";
 import SignIn from "./pages/admin/SignIn";
+import { SettingsProvider } from "./contexts/SettingsContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <SettingsProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+          <SiteMeta />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/menu" element={<Menu />} />
@@ -54,6 +58,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </SettingsProvider>
     </QueryClientProvider>
   </HelmetProvider>
 );

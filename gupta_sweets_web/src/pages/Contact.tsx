@@ -4,13 +4,16 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import { createInquiry } from "@/lib/api";
+import { useSettings } from "@/contexts/SettingsContext";
 const Contact = () => {
+  const { settings } = useSettings();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    subject: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,16 +21,20 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
-    });
-    
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    try {
+      await createInquiry(formData);
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for contacting us. We'll get back to you soon.",
+      });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Failed",
+        description: "Failed to send your message. Please try again later.",
+      });
+    }
     setIsSubmitting(false);
   };
 
@@ -38,10 +45,10 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us - Gupta Sweets | Order & Inquiries</title>
+        <title>{`Contact Us - ${settings?.siteName} | Order & Inquiries`}</title>
         <meta 
           name="description" 
-          content="Contact Gupta Sweets for orders, bulk inquiries, and catering. Visit our shop in Old Delhi or reach us via phone and WhatsApp." 
+          content={ settings?.description } 
         />
       </Helmet>
       <Layout>
@@ -76,12 +83,12 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                      <a href="tel:+919876543210" className="text-muted-foreground hover:text-primary transition-colors">
-                        +91 98765 43210
+                      <a href={`tel:+91${settings?.phone}`} className="text-muted-foreground hover:text-primary transition-colors">
+                        +91 {settings?.phone}
                       </a>
                       <br />
-                      <a href="tel:+919876543211" className="text-muted-foreground hover:text-primary transition-colors">
-                        +91 98765 43211
+                      <a href={`tel:+91${settings?.whatsapp}`} className="text-muted-foreground hover:text-primary transition-colors">
+                        +91 {settings?.whatsapp}
                       </a>
                     </div>
                   </div>
@@ -94,7 +101,7 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">WhatsApp</h3>
                       <a
-                        href="https://wa.me/919876543210"
+                        href={`https://wa.me/+91${settings?.whatsapp}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-[#25D366] transition-colors"
@@ -111,8 +118,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                      <a href="mailto:info@guptasweets.com" className="text-muted-foreground hover:text-primary transition-colors">
-                        info@guptasweets.com
+                      <a href={`mailto:${settings?.email}`} className="text-muted-foreground hover:text-primary transition-colors">
+                        {settings?.email}
                       </a>
                     </div>
                   </div>
@@ -125,8 +132,7 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Address</h3>
                       <p className="text-muted-foreground">
-                        123 Sweet Lane, Chandni Chowk,<br />
-                        Old Delhi, Delhi 110006
+                        {settings?.address}
                       </p>
                     </div>
                   </div>
@@ -139,8 +145,7 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Business Hours</h3>
                       <p className="text-muted-foreground">
-                        Monday - Saturday: 8:00 AM - 9:00 PM<br />
-                        Sunday: 9:00 AM - 8:00 PM
+                        {settings?.businessHours}
                       </p>
                     </div>
                   </div>
@@ -149,14 +154,14 @@ const Contact = () => {
                 {/* Map */}
                 <div className="mt-8 rounded-xl overflow-hidden shadow-lg">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.5461088548!2d77.22673237613697!3d28.6506847756849!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd37b741d057%3A0xcdee88e47393c3f1!2sChandni%20Chowk%2C%20Delhi!5e0!3m2!1sen!2sin!4v1703001234567!5m2!1sen!2sin"
+                    src={settings?.mapUrl}
                     width="100%"
                     height="250"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Gupta Sweets Location"
+                    title={`Map location of ${settings?.siteName}`}
                   />
                 </div>
               </div>
@@ -212,6 +217,21 @@ const Contact = () => {
                         placeholder="Enter your phone number"
                       />
                     </div>
+                    <div>
+                      <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                        Subject (optional)
+                      </label>
+                      <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        placeholder="Subject (e.g., Bulk order, Catering)"
+                      />
+                    </div>
+
                     <div>
                       <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
                         Message

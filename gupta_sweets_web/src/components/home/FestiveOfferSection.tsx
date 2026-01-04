@@ -1,7 +1,9 @@
 import { Gift, Sparkles, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const FestiveOfferSection = () => {
+  const bussinessDetails = useSettings();
   return (
     <section className="py-20 relative overflow-hidden">
       {/* Background */}
@@ -27,7 +29,7 @@ const FestiveOfferSection = () => {
             Celebrate This{" "}
             <span className="text-gradient-gold">Festive Season</span>
             <br />
-            with Gupta Sweets
+            with {bussinessDetails.settings?.siteName}
           </h2>
 
           {/* Description */}
@@ -56,7 +58,7 @@ const FestiveOfferSection = () => {
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="tel:+919876543210">
+            <a href={`tel:+91${bussinessDetails.settings?.phone}`}>
               <Button variant="hero" size="xl" className="gap-2">
                 <Phone className="w-5 h-5" />
                 Book Your Order Now

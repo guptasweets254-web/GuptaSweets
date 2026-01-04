@@ -5,8 +5,10 @@ import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Search } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/api";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Menu = () => {
+  const bussinessDetails = useSettings();
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
@@ -47,7 +49,7 @@ const Menu = () => {
 
   const handleWhatsAppOrder = (itemName: string) => {
     const message = encodeURIComponent(`Hello! I would like to order ${itemName} from Gupta Sweets.`);
-    window.open(`https://wa.me/919876543210?text=${message}`, "_blank");
+    window.open(`https://wa.me/+91${bussinessDetails.settings?.whatsapp}?text=${message}`, "_blank");
   };
 
   return (
@@ -134,15 +136,35 @@ const Menu = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       {item.description}
                     </p>
-                    <Button
-                      variant="whatsapp"
-                      size="sm"
-                      className="w-full gap-2"
-                      onClick={() => handleWhatsAppOrder(item.name)}
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      Order on WhatsApp
-                    </Button>
+                    <div className="flex w-full gap-2 items-center">
+                      <Button
+                        variant="whatsapp"
+                        size="sm"
+                        className="w-2/3 gap-2 py-6"
+                        onClick={() => handleWhatsAppOrder(item.name)}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Order on WhatsApp
+                      </Button>
+
+                      <div className="flex w-1/3 gap-2">
+                        {bussinessDetails.settings?.zomato && (
+                          <Button asChild size="icon" className="p-0 bg-[#FF3B30] hover:bg-[#e0342a] text-white" >
+                            <a href={bussinessDetails.settings.zomato} target="_blank" rel="noopener noreferrer" title="Order on Zomato" aria-label="Order on Zomato">
+                              <img src="/images/Icon.png" alt="order with zomato"/>
+                            </a>
+                          </Button>
+                        )}
+
+                        {bussinessDetails.settings?.swiggy && (
+                          <Button asChild size="icon" className="p-0 bg-[#fc8019] hover:bg-[#e26b00] text-white" >
+                            <a href={bussinessDetails.settings.swiggy} target="_blank" rel="noopener noreferrer" title="Order on Swiggy" aria-label="Order on Swiggy">
+                              <img src="/images/SwiggyIcon.jpeg" alt="order with swiggy"/>
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

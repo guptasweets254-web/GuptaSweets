@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -12,6 +13,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const bussinessDetails = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -41,14 +43,18 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-lg group-hover:animate-glow-pulse transition-all">
-              <span className="font-serif text-xl font-bold text-foreground">G</span>
+              {bussinessDetails.settings?.logoUrl ? (
+              <img src={bussinessDetails.settings?.logoUrl} alt="Logo" className="w-full h-full object-cover rounded-full" />
+              ) : (
+              <span className="font-serif text-xl font-bold text-foreground">{bussinessDetails.settings?.siteName[0]}</span>
+              )}
             </div>
             <div className="hidden sm:block">
               <h1 className="font-serif text-xl font-bold text-foreground">
-                Gupta Sweets
+                {bussinessDetails.settings?.siteName}
               </h1>
               <p className="text-xs text-muted-foreground -mt-1">
-                Since 1975
+                Since 1993
               </p>
             </div>
           </Link>
@@ -75,7 +81,7 @@ const Navbar = () => {
 
           {/* CTA Button */}
           <div className="hidden lg:flex items-center gap-3">
-            <a href="tel:+919876543210">
+            <a href={`tel:+91${bussinessDetails.settings?.phone?.replace(/\D/g, '')}`}>
               <Button variant="gold" size="default" className="gap-2">
                 <Phone className="w-4 h-4" />
                 Order Now
@@ -112,7 +118,7 @@ const Navbar = () => {
                   </Link>
                 ))}
                 <div className="pt-4 border-t border-border">
-                  <a href="tel:+919876543210" className="block">
+                  <a href={`tel:${bussinessDetails.settings?.phone?.replace(/\D/g, '')}`} className="block">
                     <Button variant="gold" size="lg" className="w-full gap-2">
                       <Phone className="w-4 h-4" />
                       Order Now

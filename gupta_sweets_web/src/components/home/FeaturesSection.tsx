@@ -1,3 +1,4 @@
+import { bussinessAge } from "@/lib/utils";
 import { Flame, Award, ShieldCheck, Truck } from "lucide-react";
 
 const features = [
@@ -8,7 +9,7 @@ const features = [
   },
   {
     icon: Award,
-    title: "50+ Years Legacy",
+    title: `${bussinessAge}+ Years Legacy`,
     description: "Three generations of sweet-making expertise and tradition",
   },
   {

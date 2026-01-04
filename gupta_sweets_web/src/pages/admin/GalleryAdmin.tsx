@@ -19,9 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GalleryCategories } from "@/lib/utils";
+import { getCategories } from "@/lib/api";
 
-const categories = GalleryCategories;
+// categories loaded from server
+const categories: any[] = []; // placeholder — replaced by state below
 
 const GalleryAdmin = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,14 +31,17 @@ const GalleryAdmin = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [images, setImages] = useState<any[]>([]);
   const [addCategory, setAddCategory] = useState<string>("");
+  const [categoriesState, setCategoriesState] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getGallery();
         setImages(data);
+        const cats = await getCategories();
+        setCategoriesState(cats || []);
       } catch (err) {
-        console.error('Failed to load gallery images', err);
+        console.error('Failed to load gallery images or categories', err);
       }
     })();
   }, []);
@@ -82,9 +86,9 @@ const GalleryAdmin = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
+                {categoriesState.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name}>
+                    {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -139,9 +143,9 @@ const GalleryAdmin = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat.toLowerCase()}>
-                          {cat}
+                      {categoriesState.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.name}>
+                          {cat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

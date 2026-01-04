@@ -45,7 +45,7 @@ const CategoriesSection = () => {
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={category.image || 'https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=400&h=300&fit=crop'}
+                  src={category.image || category.imageUrl || 'https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=400&h=300&fit=crop'}
                   alt={category.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />

@@ -11,6 +11,8 @@ import { ProductsModule } from './products/products.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { CategoriesModule } from './categories/categories.module';
+import { InquiriesModule } from './inquiries/inquiries.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { CategoriesModule } from './categories/categories.module';
     CategoriesModule,
     GalleryModule,
     TestimonialsModule,
+    InquiriesModule,
+    SettingsModule,
   ],
   providers: [
     {

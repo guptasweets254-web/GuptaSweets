@@ -5,15 +5,17 @@ import FeaturesSection from "@/components/home/FeaturesSection";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import FestiveOfferSection from "@/components/home/FestiveOfferSection";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const Index = () => {
+  const bussinessDetails = useSettings().settings;
   return (
     <>
       <Helmet>
-        <title>Gupta Sweets - Premium Indian Sweets | Traditional Mithai Since 1975</title>
+        <title>{`${bussinessDetails?.siteName} - ${bussinessDetails?.tagline}`}</title>
         <meta 
           name="description" 
-          content="Experience authentic Indian sweets made with pure desi ghee at Gupta Sweets. Order Kaju Katli, Rasgulla, Barfi & more. Trusted by families for 50+ years in Delhi." 
+          content={bussinessDetails?.description} 
         />
         <meta name="keywords" content="Indian sweets, mithai, Kaju Katli, Rasgulla, Delhi sweets, wedding sweets, Diwali sweets" />
       </Helmet>

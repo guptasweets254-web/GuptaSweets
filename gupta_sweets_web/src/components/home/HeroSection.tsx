@@ -1,10 +1,13 @@
 import { Phone, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/contexts/SettingsContext";
+import { bussinessAge } from "@/lib/utils";
 
 const HeroSection = () => {
-  const phoneNumber = "919876543210";
-  const message = encodeURIComponent("Hello! I would like to order sweets from Gupta Sweets.");
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+  const bussinessDetails = useSettings();
+  const phoneNumber = bussinessDetails.settings?.whatsapp;
+  const message = encodeURIComponent(`Hello! I would like to order sweets from ${bussinessDetails.settings?.siteName}.`);
+  const whatsappUrl = `https://wa.me/+91${phoneNumber}?text=${message}`;
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -29,7 +32,7 @@ const HeroSection = () => {
         {/* Festive Badge */}
         <div className="inline-flex items-center gap-2 bg-accent/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8 animate-fade-in border border-accent/30">
           <Sparkles className="w-4 h-4 text-accent" />
-          <span className="text-sm font-medium text-accent">Celebrating Sweet Moments Since 1975</span>
+          <span className="text-sm font-medium text-accent">Celebrating Sweet Moments Since 1993</span>
           <Sparkles className="w-4 h-4 text-accent" />
         </div>
 
@@ -49,7 +52,7 @@ const HeroSection = () => {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
-          <a href="tel:+919876543210">
+          <a href={`tel:+91${bussinessDetails.settings?.phone}`}>
             <Button variant="hero" size="xl" className="gap-3 min-w-[200px]">
               <Phone className="w-5 h-5" />
               Order on Call
@@ -68,7 +71,7 @@ const HeroSection = () => {
           {[
             "100% Pure Desi Ghee",
             "Handcrafted Daily",
-            "50+ Years Legacy",
+            `${bussinessAge}+ Years Legacy`,
           ].map((badge) => (
             <div
               key={badge}

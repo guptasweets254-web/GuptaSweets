@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Mail, MailOpen, Trash2, Eye } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
@@ -18,74 +18,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { getInquiries, updateInquiry, deleteInquiry } from "@/lib/api";
 
-const mockInquiries = [
-  {
-    id: 1,
-    name: "Vikram Singh",
-    email: "vikram@email.com",
-    phone: "+91 98765 43210",
-    subject: "Bulk order for wedding",
-    message: "Hi, I'm interested in placing a bulk order for my daughter's wedding. We need around 50kg of assorted sweets including Kaju Katli, Gulab Jamun, and Ladoos. The wedding is on 15th February. Please share the pricing and availability.",
-    date: "2024-01-20",
-    time: "10:30 AM",
-    status: "Unread",
-  },
-  {
-    id: 2,
-    name: "Anita Reddy",
-    email: "anita.r@email.com",
-    phone: "+91 87654 32109",
-    subject: "Custom gift packaging",
-    message: "Do you offer custom gift packaging for corporate gifts? We're looking for branded boxes for our company's Diwali gifts. Quantity would be around 200 boxes.",
-    date: "2024-01-19",
-    time: "3:45 PM",
-    status: "Read",
-  },
-  {
-    id: 3,
-    name: "Rajesh Mehta",
-    email: "rajesh.m@email.com",
-    phone: "+91 76543 21098",
-    subject: "Delivery to Mumbai",
-    message: "Can you deliver to Mumbai? I want to send sweets to my parents for their anniversary. Need premium quality sweets around 2kg.",
-    date: "2024-01-18",
-    time: "11:15 AM",
-    status: "Replied",
-  },
-  {
-    id: 4,
-    name: "Priya Sharma",
-    email: "priya.s@email.com",
-    phone: "+91 65432 10987",
-    subject: "Ingredients inquiry",
-    message: "Are your sweets made with pure desi ghee? My mother has dietary restrictions and I need to confirm the ingredients before ordering.",
-    date: "2024-01-17",
-    time: "2:00 PM",
-    status: "Replied",
-  },
-  {
-    id: 5,
-    name: "Arun Kumar",
-    email: "arun.k@email.com",
-    phone: "+91 54321 09876",
-    subject: "Franchise inquiry",
-    message: "I'm interested in opening a Gupta Sweets franchise in Pune. Could you please share the requirements and investment details?",
-    date: "2024-01-16",
-    time: "9:00 AM",
-    status: "Unread",
-  },
-];
+
 
 const Inquiries = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedInquiry, setSelectedInquiry] = useState<typeof mockInquiries[0] | null>(null);
+  const [selectedInquiry, setSelectedInquiry] = useState<any | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [inquiries, setInquiries] = useState<any[]>([]);
 
-  const filteredInquiries = mockInquiries.filter((inquiry) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getInquiries();
+        setInquiries(data || []);
+      } catch (err) {
+        console.error('Failed to load enquiries', err);
+      }
+    })();
+  }, []);
+
+  const filteredInquiries = inquiries.filter((inquiry) => {
     const matchesSearch =
-      inquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inquiry.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      (inquiry.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (inquiry.subject || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || inquiry.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -189,7 +146,37 @@ const Inquiries = () => {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={async () => {
+                          try {
+                            await updateInquiry(inquiry.id, { status: inquiry.status === 'Unread' ? 'Read' : 'Unread' });
+                            const updated = await getInquiries();
+                            setInquiries(updated || []);
+                          } catch (err) {
+                            console.error('Failed to toggle status', err);
+                          }
+                        }}
+                        title="Toggle Read"
+                      >
+                        {inquiry.status === 'Unread' ? <Mail className="h-4 w-4 text-festival-red" /> : <MailOpen className="h-4 w-4 text-muted-foreground" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                        onClick={async () => {
+                          if (!window.confirm('Are you sure you want to delete this inquiry?')) return;
+                          try {
+                            await deleteInquiry(inquiry.id);
+                            const updated = await getInquiries();
+                            setInquiries(updated || []);
+                          } catch (err) {
+                            console.error('Failed to delete inquiry', err);
+                          }
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -230,10 +217,41 @@ const Inquiries = () => {
                   <p className="text-foreground">{selectedInquiry.message}</p>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={async () => {
+                      try {
+                        await updateInquiry(selectedInquiry.id, { status: 'Read' });
+                        const updated = await getInquiries();
+                        setInquiries(updated || []);
+                        const newSelected = updated.find((i: any) => i.id === selectedInquiry.id);
+                        setSelectedInquiry(newSelected || null);
+                      } catch (err) {
+                        console.error('Failed to mark as read', err);
+                      }
+                    }}
+                  >
                     Mark as Read
                   </Button>
-                  <Button className="flex-1 bg-saffron hover:bg-saffron/90">
+                  <Button
+                    className="flex-1 bg-saffron hover:bg-saffron/90"
+                    onClick={async () => {
+                      // open default mail client
+                      if (selectedInquiry?.email) {
+                        window.location.href = `mailto:${selectedInquiry.email}?subject=${encodeURIComponent(selectedInquiry.subject || 'Re: Inquiry')}`;
+                      }
+                      try {
+                        await updateInquiry(selectedInquiry.id, { status: 'Replied' });
+                        const updated = await getInquiries();
+                        setInquiries(updated || []);
+                        const newSelected = updated.find((i: any) => i.id === selectedInquiry.id);
+                        setSelectedInquiry(newSelected || null);
+                      } catch (err) {
+                        console.error('Failed to mark as replied', err);
+                      }
+                    }}
+                  >
                     Reply via Email
                   </Button>
                 </div>

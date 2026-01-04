@@ -16,12 +16,18 @@ export class CategoriesService {
   async create(data: any) {
     if (!data.name) throw new BadRequestException('Category name is required');
     const slug = this.slugify(data.name);
-    return (this.prisma as any).category.create({ data: { name: data.name, slug } });
+    const createData: any = { name: data.name, slug };
+    if (data.imageUrl) createData.imageUrl = data.imageUrl;
+    if (data.imageThumb) createData.imageThumb = data.imageThumb;
+    if (data.description) createData.description = data.description;
+    return (this.prisma as any).category.create({ data: createData });
   }
 
   async update(id: number, data: any) {
     if (data.name) data.slug = this.slugify(data.name);
-    return (this.prisma as any).category.update({ where: { id }, data });
+    // allow updating image fields
+    const updateData: any = { ...data };
+    return (this.prisma as any).category.update({ where: { id }, data: updateData });
   }
 
   remove(id: number) {

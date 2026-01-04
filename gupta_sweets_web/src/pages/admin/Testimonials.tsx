@@ -26,7 +26,9 @@ import { Switch } from "@/components/ui/switch";
 const Testimonials = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [editingTestimonial, setEditingTestimonial] = useState<any | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -86,7 +88,7 @@ const Testimonials = () => {
                 e.preventDefault();
                 const name = (document.getElementById('name') as HTMLInputElement).value;
                 const location = (document.getElementById('location') as HTMLInputElement).value;
-                const rating = Number((document.querySelector('[data-rating]') as HTMLInputElement)?.value || 5);
+                const rating = Number((document.getElementById('rating') as HTMLInputElement).value || 5);
                 const review = (document.getElementById('review') as HTMLTextAreaElement).value;
                 const featured = (document.getElementById('featured') as HTMLInputElement).checked;
                 const avatarUrl = (document.getElementById('avatarUrl') as HTMLInputElement).value || null;
@@ -122,11 +124,7 @@ const Testimonials = () => {
                 <div>
                   <Label htmlFor="rating">Rating</Label>
                   <div className="flex gap-1 py-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button key={star} type="button" className="text-gold hover:scale-110 transition-transform">
-                        <Star className="h-6 w-6 fill-current" />
-                      </button>
-                    ))}
+                    <Input id="rating" type="number" min={1} max={5} placeholder="Rating 1-5" />
                   </div>
                 </div>
                 <div>
@@ -174,7 +172,7 @@ const Testimonials = () => {
                   <input id="avatarUrl" type="hidden" />
                   <input id="avatarThumb" type="hidden" />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="items-center justify-between hidden">
                   <Label htmlFor="featured">Featured on Homepage</Label>
                   <Switch id="featured" />
                 </div>
@@ -195,6 +193,108 @@ const Testimonials = () => {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Edit Testimonial Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Testimonial</DialogTitle>
+            </DialogHeader>
+            <form className="space-y-4" onSubmit={async (e) => {
+              e.preventDefault();
+              if (!editingTestimonial) return;
+              const name = (document.getElementById('edit-name') as HTMLInputElement).value;
+              const location = (document.getElementById('edit-location') as HTMLInputElement).value;
+              const rating = Number((document.getElementById('edit-rating') as HTMLInputElement).value || 5);
+              const review = (document.getElementById('edit-review') as HTMLTextAreaElement).value;
+              const avatarUrl = (document.getElementById('edit-avatarUrl') as HTMLInputElement).value || null;
+              const avatarThumb = (document.getElementById('edit-avatarThumb') as HTMLInputElement).value || null;
+              try {
+                const updated = await (await import('@/lib/api')).updateTestimonial(editingTestimonial.id, { name, location, rating, text: review,  avatarUrl, avatarThumbUrl: avatarThumb });
+                setTestimonials((p) => p.map((x) => x.id === updated.id ? { ...x, ...{ name: updated.name, location: updated.location, rating: updated.rating ?? 5, review: updated.text, avatarUrl: updated.avatarUrl } } : x));
+                setIsEditDialogOpen(false);
+                setEditingTestimonial(null);
+              } catch (err) {
+                console.error(err);
+              }
+            }}>
+              <div>
+                <Label htmlFor="edit-name">Customer Name</Label>
+                <Input id="edit-name" placeholder="Enter customer name" />
+              </div>
+              <div>
+                <Label htmlFor="edit-location">Location</Label>
+                <Input id="edit-location" placeholder="Enter location" />
+              </div>
+              <div>
+                <Label htmlFor="edit-rating">Rating</Label>
+                <Input id="edit-rating" type="number" min={1} max={5} placeholder="Rating 1-5" />
+              </div>
+              <div>
+                <Label htmlFor="edit-review">Review</Label>
+                <Textarea id="edit-review" placeholder="Enter customer review" rows={4} />
+              </div>
+              <div>
+                <Label htmlFor="edit-avatar">Avatar</Label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="edit-avatarFile"
+                    type="file"
+                    accept="image/*"
+                    className="block"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const csrf = await (await import('@/lib/auth')).getCsrf();
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/upload`, {
+                          method: 'POST',
+                          body: fd,
+                          credentials: 'include',
+                          headers: {
+                            'x-csrf-token': csrf,
+                          },
+                        });
+                        if (!res.ok) throw new Error('Upload failed');
+                        const data = await res.json();
+                        const img = document.getElementById('edit-avatarPreview') as HTMLImageElement | null;
+                        if (img) img.src = data.thumbUrl || data.url;
+                        const urlInput = document.getElementById('edit-avatarUrl') as HTMLInputElement | null;
+                        if (urlInput) urlInput.value = data.url;
+                        const thumbInput = document.getElementById('edit-avatarThumb') as HTMLInputElement | null;
+                        if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
+                      } catch (err) {
+                        console.error(err);
+                      }
+                    }}
+                  />
+                  <img id="edit-avatarPreview" alt="avatar preview" className="h-12 w-12 rounded-full object-cover" />
+                </div>
+                <input id="edit-avatarUrl" type="hidden" />
+                <input id="edit-avatarThumb" type="hidden" />
+              </div>
+              <div className="hidden items-center justify-between">
+                <Label htmlFor="edit-featured">Featured on Homepage</Label>
+                <Switch id="edit-featured" />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => { setIsEditDialogOpen(false); setEditingTestimonial(null); }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Testimonials Grid */}
         <div className="grid gap-6 md:grid-cols-2">
@@ -224,7 +324,27 @@ const Testimonials = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      const p = testimonial;
+                      setEditingTestimonial(p);
+                      setTimeout(() => {
+                        const nameEl = document.getElementById('edit-name') as HTMLInputElement | null;
+                        const locEl = document.getElementById('edit-location') as HTMLInputElement | null;
+                        const reviewEl = document.getElementById('edit-review') as HTMLTextAreaElement | null;
+                        const avatarEl = document.getElementById('edit-avatarPreview') as HTMLImageElement | null;
+                        const avatarUrlEl = document.getElementById('edit-avatarUrl') as HTMLInputElement | null;
+                        const avatarThumbEl = document.getElementById('edit-avatarThumb') as HTMLInputElement | null;
+                        const featuredEl = document.getElementById('edit-featured') as HTMLInputElement | null;
+                        if (nameEl) nameEl.value = p.name || '';
+                        if (locEl) locEl.value = p.location || '';
+                        if (reviewEl) reviewEl.value = p.review || p.text || '';
+                        if (avatarEl) avatarEl.src = p.avatarUrl || '';
+                        if (avatarUrlEl) avatarUrlEl.value = p.avatarUrl || '';
+                        if (avatarThumbEl) avatarThumbEl.value = p.avatarThumbUrl || p.avatarThumb || '';
+                        if (featuredEl) featuredEl.checked = !!p.featured;
+                      }, 10);
+                      setIsEditDialogOpen(true);
+                    }}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>

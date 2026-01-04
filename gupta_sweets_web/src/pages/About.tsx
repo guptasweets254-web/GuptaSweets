@@ -1,9 +1,10 @@
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
 import { Award, Heart, Shield, Users, Sparkles } from "lucide-react";
+import { bussinessAge } from "@/lib/utils";
 
 const milestones = [
-  { year: "1975", title: "The Beginning", description: "Started as a small sweet shop in Old Delhi by Late Shri Ram Gupta" },
+  { year: "1993", title: "The Beginning", description: "Started as a small sweet shop in Old Delhi by Late Shri Ram Gupta" },
   { year: "1990", title: "Expansion", description: "Opened our flagship store and introduced Bengali sweets" },
   { year: "2005", title: "Modernization", description: "Upgraded to modern kitchen while preserving traditional recipes" },
   { year: "2020", title: "Third Generation", description: "Continuing the legacy with same commitment to quality" },
@@ -36,7 +37,7 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About Us - Gupta Sweets | Our Heritage Story Since 1975</title>
+        <title>About Us - Gupta Sweets | Our Heritage Story Since 1993</title>
         <meta 
           name="description" 
           content="Discover the heritage of Gupta Sweets - three generations of sweet-making excellence. Learn about our commitment to purity, tradition, and taste." 
@@ -73,7 +74,7 @@ const About = () => {
                 </div>
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-gold rounded-2xl flex items-center justify-center shadow-lg">
                   <div className="text-center text-foreground">
-                    <span className="block text-3xl font-bold font-serif">50+</span>
+                    <span className="block text-3xl font-bold font-serif">{bussinessAge}+</span>
                     <span className="text-sm">Years</span>
                   </div>
                 </div>
@@ -81,7 +82,7 @@ const About = () => {
 
               {/* Content */}
               <div>
-                <span className="text-primary font-medium">Est. 1975</span>
+                <span className="text-primary font-medium">Est. 1993</span>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mt-2 mb-6">
                   A Legacy of{" "}
                   <span className="text-gradient-gold">Sweet Traditions</span>

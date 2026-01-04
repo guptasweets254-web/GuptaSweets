@@ -12,6 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSettings } from '@/contexts/SettingsContext';
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
@@ -21,8 +22,21 @@ const menuItems = [
   { icon: MessageSquare, label: "Testimonials", path: "/admin/testimonials" },
   // { icon: Gift, label: "Offers", path: "/admin/offers" },
   { icon: Mail, label: "Inquiries", path: "/admin/inquiries" },
-  // { icon: Settings, label: "Settings", path: "/admin/settings" },
+  { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
+
+const LogoOrIcon = () => {
+  const { settings } = useSettings();
+  if (settings?.logoUrl) {
+    return <img src={settings?.logoUrl} alt="Logo" className="w-full h-full object-cover rounded-full" />;
+  }
+  return <Store className="h-5 w-5 text-white" />;
+};
+
+const SiteTitle = () => {
+  const { settings } = useSettings();
+  return settings?.siteName || 'Gupta Sweets';
+};
 
 const AdminSidebar = () => {
   return (
@@ -31,13 +45,13 @@ const AdminSidebar = () => {
         {/* Logo */}
         <div className="flex items-center gap-3 border-b border-border px-6 py-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-saffron to-festival-red">
-            <Store className="h-5 w-5 text-white" />
+            {/* show logo if available */}
+            <LogoOrIcon />
           </div>
           <div>
-            <h1 className="font-display text-lg font-bold text-foreground">
-              Gupta Sweets
-            </h1>
-            <p className="text-xs text-muted-foreground">Admin Panel</p>
+            <div className="font-display text-lg font-bold text-foreground">
+              <SiteTitle />
+            </div>
           </div>
         </div>
 

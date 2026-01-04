@@ -55,6 +55,79 @@ export async function deleteTestimonial(id: number) {
   return res.json();
 }
 
+export async function updateTestimonial(id: number, data: any) {
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/testimonials/${id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update testimonial');
+  return res.json();
+}
+
+// Inquiries (Contact form)
+export async function createInquiry(data: any) {
+  const res = await fetch(`${API}/inquiries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to send enquiry');
+  return res.json();
+}
+
+export async function getInquiries(limit?: number) {
+  const query = limit ? `?limit=${limit}` : '';
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/inquiries${query}`, { credentials: 'include', headers: { 'x-csrf-token': csrf } });
+  if (!res.ok) throw new Error('Failed to fetch enquiries');
+  return res.json();
+}
+
+export async function updateInquiry(id: number, data: any) {
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/inquiries/${id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update enquiry');
+  return res.json();
+}
+
+export async function deleteInquiry(id: number) {
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/inquiries/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'x-csrf-token': csrf },
+  });
+  if (!res.ok) throw new Error('Failed to delete enquiry');
+  return res.json();
+}
+
+// Settings
+export async function getSettings() {
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/settings`, { credentials: 'include', headers: { 'x-csrf-token': csrf } });
+  if (!res.ok) throw new Error('Failed to fetch settings');
+  return res.json();
+}
+
+export async function updateSettings(data: any) {
+  const csrf = await getCsrf();
+  const res = await fetch(`${API}/settings`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update settings');
+  return res.json();
+}
 // Categories
 export async function getCategories() {
   const res = await fetch(`${API}/categories`, { credentials: 'include' });
@@ -62,13 +135,13 @@ export async function getCategories() {
   return res.json();
 }
 
-export async function createCategory(name: string) {
+export async function createCategory(data: any) {
   const csrf = await getCsrf();
   const res = await fetch(`${API}/categories`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to create category');
   return res.json();

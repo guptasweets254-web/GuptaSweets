@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const isProd = process.env.NODE_ENV === 'production';
 
   app.set('trust proxy', 1);
 
@@ -22,22 +23,24 @@ async function bootstrap() {
     const csrfProtection = csurf({
       cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        secure: isProd,                // 🔥 key fix
+        sameSite: isProd ? 'none' : 'lax',
         path: '/',
       },
     });
 
     app.use((req, res, next) => {
-      // ❌ Only skip CSRF validation for login/register
       if (
         req.method === 'POST' &&
         (req.path === '/auth/login' || req.path === '/auth/register')
       ) {
         return next();
       }
-
-      // ✅ CSRF must run for /auth/csrf
+      if (
+        req.method === 'POST' && req.path === '/inquiries'
+      ) {
+        return next();
+      }
       return csrfProtection(req, res, next);
     });
   } catch {}
