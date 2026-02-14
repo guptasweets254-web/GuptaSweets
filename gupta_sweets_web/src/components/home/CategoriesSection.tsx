@@ -23,9 +23,9 @@ const CategoriesSection = () => {
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-14">
-          <span className="inline-block text-primary font-medium mb-2">Our Collection</span>
+          <span className="inline-block text-primary font-medium mb-2">Our Signature Offerings</span>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Explore Our <span className="text-gradient-gold">Sweet Categories</span>
+            Explore Our <span className="text-gradient-gold">Premium Indian Sweets & Snacks</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             From traditional Indian mithai to modern desserts, discover our handcrafted 

@@ -50,10 +50,14 @@ const Navbar = () => {
               )}
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-serif text-xl font-bold text-foreground">
+              <h1 className={`font-serif text-xl font-bold ${isScrolled
+          ? "text-foreground"
+          : "text-white"} `}>
                 {bussinessDetails.settings?.siteName}
               </h1>
-              <p className="text-xs text-muted-foreground -mt-1">
+              <p className={`text-xs ${isScrolled
+          ? "text-primary"
+          : "text-white"}  -mt-1`}>
                 Since 1993
               </p>
             </div>

@@ -28,26 +28,26 @@ const HeroSection = () => {
       <Sparkles className="absolute top-1/2 left-1/4 w-5 h-5 text-accent/50 animate-sparkle" style={{ animationDelay: "1s" }} />
 
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-10 text-center">
+      <div className="container mx-auto px-4 py-16 md:py-0 relative z-10 text-center">
         {/* Festive Badge */}
-        <div className="inline-flex items-center gap-2 bg-accent/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8 animate-fade-in border border-accent/30">
+        <div className="hidden md:inline-flex items-center gap-2 bg-accent/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8 animate-fade-in border border-accent/30">
           <Sparkles className="w-4 h-4 text-accent" />
-          <span className="text-sm font-medium text-accent">Celebrating Sweet Moments Since 1993</span>
+          <span className="text-sm font-medium text-accent">Crafting Timeless Flavours for Memorable Celebrations Since 1993 </span>
           <Sparkles className="w-4 h-4 text-accent" />
         </div>
 
         {/* Main Heading */}
         <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-6 leading-tight animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          Celebrating{" "}
-          <span className="text-gradient-gold">Sweet Moments</span>
+          Welcome to
+          <span className="text-gradient-gold"> {bussinessDetails?.settings?.siteName}</span>
           <br />
-          with Pure Taste & Tradition
+          for Pure Taste & Tradition
         </h1>
 
         {/* Subheading */}
         <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          Experience the authentic taste of handcrafted Indian sweets made with{" "}
-          <span className="text-accent font-medium">pure desi ghee</span> and premium ingredients
+          Experience the authentic taste of handcrafted Indian Sweets made with{" "}
+          a name synonymous with premium quality sweets in Bareilly, and Gupta Caterers, your trusted <span className="text-accent font-medium">partner for Luxury Catering </span>  services for events and weddings.
         </p>
 
         {/* CTA Buttons */}

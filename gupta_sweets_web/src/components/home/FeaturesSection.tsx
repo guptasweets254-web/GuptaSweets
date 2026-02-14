@@ -4,8 +4,8 @@ import { Flame, Award, ShieldCheck, Truck } from "lucide-react";
 const features = [
   {
     icon: Flame,
-    title: "Pure Desi Ghee",
-    description: "All our sweets are made with 100% pure desi ghee, no substitutes",
+    title: "Premium Quality",
+    description: "Premium ingredients & refined taste for an unforgettable sweet experience",
   },
   {
     icon: Award,
@@ -19,8 +19,8 @@ const features = [
   },
   {
     icon: Truck,
-    title: "Fresh Delivery",
-    description: "Same-day delivery for orders placed before 2 PM in Delhi NCR",
+    title: "Trusted Catering",
+    description: "Trusted name in Bareilly catering services",
   },
 ];
 

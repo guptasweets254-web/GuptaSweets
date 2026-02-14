@@ -1,35 +1,35 @@
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
-import { Award, Heart, Shield, Users, Sparkles } from "lucide-react";
+import { Award, Sparkles, Flame, ShieldCheck, Truck } from "lucide-react";
 import { bussinessAge } from "@/lib/utils";
 
 const milestones = [
-  { year: "1993", title: "The Beginning", description: "Started as a small sweet shop in Old Delhi by Late Shri Ram Gupta" },
-  { year: "1990", title: "Expansion", description: "Opened our flagship store and introduced Bengali sweets" },
-  { year: "2005", title: "Modernization", description: "Upgraded to modern kitchen while preserving traditional recipes" },
-  { year: "2020", title: "Third Generation", description: "Continuing the legacy with same commitment to quality" },
+  { year: "", title: "Freshness", description: "Fresh, premium-quality ingredients" },
+  { year: "", title: "Authenticity", description: "Authentic flavours with elegant presentation" },
+  { year: "", title: "Modernization", description: "Upgraded to modern kitchen while preserving traditional recipes" },
+  { year: "", title: "Delightfullness", description: "Irresistible taste that turns every celebration into a sweet memory." },
 ];
 
 const values = [
   {
-    icon: Heart,
-    title: "Pure Ingredients",
-    description: "We use only 100% pure desi ghee, fresh milk, and premium dry fruits. No shortcuts, no substitutes.",
-  },
-  {
-    icon: Shield,
-    title: "Hygiene First",
-    description: "Our kitchen follows the highest standards of cleanliness with regular quality checks and certifications.",
+    icon: Flame,
+    title: "Premium Quality",
+    description: "Premium ingredients & refined taste for an unforgettable sweet experience",
   },
   {
     icon: Award,
-    title: "Expert Halwais",
-    description: "Our master sweet makers have decades of experience, trained in traditional methods passed through generations.",
+    title: `${bussinessAge}+ Years Legacy`,
+    description: "Three generations of sweet-making expertise and tradition",
   },
   {
-    icon: Users,
-    title: "Family Values",
-    description: "Every customer is family. We treat each order with personal care and attention to detail.",
+    icon: ShieldCheck,
+    title: "Hygienic Process",
+    description: "Modern kitchen with strict hygiene standards and quality control",
+  },
+  {
+    icon: Truck,
+    title: "Trusted Catering",
+    description: "Trusted name in Bareilly catering services",
   },
 ];
 
@@ -89,20 +89,13 @@ const About = () => {
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    In the bustling lanes of Old Delhi, <strong className="text-foreground">Late Shri Ram Gupta</strong> 
-                    started a small sweet shop with a simple dream - to bring joy to every household through 
-                    the purest, most delicious sweets made with love and tradition.
+                    Gupta Sweets is one of the most trusted sweet shops in Bareilly, known for quality, authenticity, and hygienic preparation. From classic Indian sweets to modern desserts, every creation reflects our passion for excellence.
                   </p>
                   <p>
-                    What began as a modest shop has now grown into one of Delhi's most trusted names 
-                    in Indian sweets. Our secret? We've never compromised on quality. Every sweet 
-                    that leaves our kitchen is made with <strong className="text-foreground">100% pure desi ghee</strong>, 
-                    fresh ingredients, and recipes that have been perfected over five decades.
+                    Building on this legacy, <strong className="text-foreground">Gupta Caterers</strong> delivers premium catering services for weddings, corporate events, and special celebrations—where taste, presentation, and precision matter most.
                   </p>
                   <p>
-                    Today, the third generation continues this legacy, blending time-honored traditions 
-                    with modern hygiene standards, ensuring that the authentic taste of Indian mithai 
-                    reaches every celebration, every festival, and every sweet moment.
+                    Led by Mohit Gupta, we blend tradition with innovation to create memorable food experiences.
                   </p>
                 </div>
               </div>
@@ -115,7 +108,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-14">
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
-                Our <span className="text-gradient-gold">Journey</span>
+                Our <span className="text-gradient-gold">Promises</span>
               </h2>
             </div>
 

@@ -28,7 +28,7 @@ const Settings = () => {
   const [phone, setPhone] = useState('+91 98765 43210');
   const [whatsapp, setWhatsapp] = useState('+91 98765 43210');
   const [email, setEmail] = useState('info@guptasweets.com');
-  const [address, setAddress] = useState('123, Sweet Lane, Near Central Market, Delhi - 110001');
+  const [address, setAddress] = useState('123, Sweet Lane, Near Central Market, Bareilly - 243001');
   const [mapUrl, setMapUrl] = useState('');
 
   const [facebook, setFacebook] = useState('');

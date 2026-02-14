@@ -17,13 +17,13 @@ const Index = () => {
           name="description" 
           content={bussinessDetails?.description} 
         />
-        <meta name="keywords" content="Indian sweets, mithai, Kaju Katli, Rasgulla, Delhi sweets, wedding sweets, Diwali sweets" />
+        <meta name="keywords" content="Indian sweets, mithai, Kaju Katli, Rasgulla, bareilly sweets, wedding sweets, Diwali sweets" />
       </Helmet>
       <Layout>
         <HeroSection />
         <FeaturesSection />
         <CategoriesSection />
-        <FestiveOfferSection />
+        {/* <FestiveOfferSection /> */}
         <TestimonialsSection />
       </Layout>
     </>

@@ -70,7 +70,7 @@ const Menu = () => {
               Our <span className="text-gradient-gold">Menu</span>
             </h1>
             <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">
-              Discover our handcrafted sweets made with love and pure ingredients
+              A refined selection of traditional and modern mithai—crafted fresh daily using premium ghee, dry fruits, and high-quality ingredients.
             </p>
           </div>
         </section>
