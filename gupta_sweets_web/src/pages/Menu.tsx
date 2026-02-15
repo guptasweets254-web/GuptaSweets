@@ -20,17 +20,21 @@ const Menu = () => {
     (async () => {
       try {
         const cats = await getCategories();
-        setCategories([{ id: 'all', name: 'All Items', slug: 'all' }, ...cats]);
+        // Filter categories by type = 'Food'
+        const foodCategories = cats.filter((cat: any) => cat.type === 'Food' || !cat.type);
+        setCategories([{ id: 'all', name: 'All Items', slug: 'all' }, ...foodCategories]);
         const prods = await getProducts();
-        // Normalize products for UI
-        setItems(prods.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          category: p.category?.slug || null,
-          price: p.price,
-          description: p.description,
-          image: p.imageThumb || p.imageUrl,
-        })));
+        // Filter products by status = 'Active' and normalize for UI
+        setItems(prods
+          .filter((p: any) => p.status === 'Active' || !p.status)
+          .map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category?.slug || null,
+            price: p.price,
+            description: p.description,
+            image: p.imageThumb || p.imageUrl,
+          })));
 
         // check url for ?category=slug
         const qp = new URLSearchParams(location.search).get('category');

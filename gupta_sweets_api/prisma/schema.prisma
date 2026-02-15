@@ -42,14 +42,17 @@ model Product {
   imageThumb  String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  categoryId  Int?
-  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
 }
 
 model Category {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   slug        String    @unique
+  type        String    @default("Food")
   createdAt   DateTime  @default(now())
   imageUrl    String?
   imageThumb  String?

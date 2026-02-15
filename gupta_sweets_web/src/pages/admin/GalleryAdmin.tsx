@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Trash2, Eye, Loader2, AlertCircle } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,13 +32,15 @@ const GalleryAdmin = () => {
   const [images, setImages] = useState<any[]>([]);
   const [addCategory, setAddCategory] = useState<string>("");
   const [categoriesState, setCategoriesState] = useState<any[]>([]);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getGallery();
         setImages(data);
-        const cats = await getCategories();
+        const cats = (await getCategories()).filter((cat: any) => cat.type === 'Gallery' || !cat.type);
         setCategoriesState(cats || []);
       } catch (err) {
         console.error('Failed to load gallery images or categories', err);
@@ -108,10 +110,27 @@ const GalleryAdmin = () => {
               </DialogHeader>
               <form className="space-y-4" onSubmit={async (e) => {
                 e.preventDefault();
+                setValidationError("");
                 const title = (document.getElementById('title') as HTMLInputElement).value;
                 const category = addCategory;
                 const url = (document.getElementById('url') as HTMLInputElement).value;
                 const thumbUrl = (document.getElementById('thumbUrl') as HTMLInputElement).value || null;
+
+                if (!title.trim()) {
+                  setValidationError("Image title is required.");
+                  return;
+                }
+
+                if (!category) {
+                  setValidationError("Category is required.");
+                  return;
+                }
+
+                if (!url) {
+                  setValidationError("Image is required. Please upload an image.");
+                  return;
+                }
+
                 try {
                   const csrf = await (await import('@/lib/auth')).getCsrf();
                   const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/gallery`, {
@@ -127,19 +146,34 @@ const GalleryAdmin = () => {
                   const created = await res.json();
                   setImages((p) => [{ id: created.id, title: created.title, category: created.category, url: created.imageUrl }, ...p]);
                   setIsAddDialogOpen(false);
-                } catch (err) {
+                  // Reset form
+                  (document.getElementById('title') as HTMLInputElement).value = '';
+                  (document.getElementById('url') as HTMLInputElement).value = '';
+                  (document.getElementById('thumbUrl') as HTMLInputElement).value = '';
+                  (document.getElementById('imagePreview') as HTMLImageElement).src = '';
+                  setAddCategory("");
+                  setValidationError("");
+                } catch (err: any) {
+                  setValidationError(err.message || "Failed to create image. Please try again.");
                   console.error(err);
                 }
               }}>
 
+                {validationError && (
+                  <div className="flex gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{validationError}</span>
+                  </div>
+                )}
+
                 <div>
-                  <Label htmlFor="title">Image Title</Label>
+                  <Label htmlFor="title">Image Title *</Label>
                   <Input id="title" placeholder="Enter image title" />
                 </div>
                 <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Select value={addCategory} onValueChange={setAddCategory}>
-                    <SelectTrigger>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={addCategory} onValueChange={(val) => { setAddCategory(val); setValidationError(""); }}>
+                    <SelectTrigger className={addCategory ? "" : "border-red-300"}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -152,16 +186,17 @@ const GalleryAdmin = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="url">Image</Label>
-                  <div className="flex items-center gap-3">
+                  <Label htmlFor="url">Image *</Label>
+                  <div className="flex items-center gap-3 w-full">
                     <input
                       id="imageFile"
                       type="file"
                       accept="image/*"
-                      className="block"
+                      className="block flex-1"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
+                        setImageLoading(true);
                         try {
                           const csrf = await (await import('@/lib/auth')).getCsrf();
                           const fd = new FormData();
@@ -184,11 +219,16 @@ const GalleryAdmin = () => {
                           if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
                         } catch (err) {
                           console.error(err);
+                        } finally {
+                          setImageLoading(false);
                         }
                       }}
+                      disabled={imageLoading}
                     />
+                    
                     <img id="imagePreview" alt="preview" className="h-12 w-12 rounded-lg object-cover" />
                   </div>
+                  {imageLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   <input id="url" type="hidden" />
                   <input id="thumbUrl" type="hidden" />
                 </div>
@@ -201,7 +241,7 @@ const GalleryAdmin = () => {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90">
+                  <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90" disabled={imageLoading}>
                     Add Image
                   </Button>
                 </div>

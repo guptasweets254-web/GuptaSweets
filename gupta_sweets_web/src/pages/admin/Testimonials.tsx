@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Star, MoreVertical } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Star, MoreVertical, Loader2, AlertCircle } from "lucide-react";
 import { getTestimonials, deleteTestimonial } from "@/lib/api";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,10 @@ const Testimonials = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [editingTestimonial, setEditingTestimonial] = useState<any | null>(null);
+  const [addImageLoading, setAddImageLoading] = useState(false);
+  const [editImageLoading, setEditImageLoading] = useState(false);
+  const [addValidationError, setAddValidationError] = useState("");
+  const [editValidationError, setEditValidationError] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -86,6 +90,7 @@ const Testimonials = () => {
               </DialogHeader>
               <form className="space-y-4" onSubmit={async (e) => {
                 e.preventDefault();
+                setAddValidationError("");
                 const name = (document.getElementById('name') as HTMLInputElement).value;
                 const location = (document.getElementById('location') as HTMLInputElement).value;
                 const rating = Number((document.getElementById('rating') as HTMLInputElement).value || 5);
@@ -93,6 +98,27 @@ const Testimonials = () => {
                 const featured = (document.getElementById('featured') as HTMLInputElement).checked;
                 const avatarUrl = (document.getElementById('avatarUrl') as HTMLInputElement).value || null;
                 const avatarThumb = (document.getElementById('avatarThumb') as HTMLInputElement).value || null;
+
+                if (!name.trim()) {
+                  setAddValidationError("Customer name is required.");
+                  return;
+                }
+
+                if (!location.trim()) {
+                  setAddValidationError("Location is required.");
+                  return;
+                }
+
+                if (!review.trim()) {
+                  setAddValidationError("Review is required.");
+                  return;
+                }
+
+                if (!rating || rating < 1 || rating > 5) {
+                  setAddValidationError("Rating must be between 1 and 5.");
+                  return;
+                }
+
                 try {
                   const csrf = await (await import('@/lib/auth')).getCsrf();
                   const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/testimonials`, {
@@ -108,27 +134,45 @@ const Testimonials = () => {
                   const created = await res.json();
                   setTestimonials((p) => [{ id: created.id, name: created.name, rating: created.rating ?? 5, review: created.text, location: created.location ?? '', date: new Date(created.createdAt).toISOString().slice(0,10), featured: created.featured ?? false }, ...p]);
                   setIsAddDialogOpen(false);
-                } catch (err) {
+                  // Reset form
+                  (document.getElementById('name') as HTMLInputElement).value = '';
+                  (document.getElementById('location') as HTMLInputElement).value = '';
+                  (document.getElementById('rating') as HTMLInputElement).value = '5';
+                  (document.getElementById('review') as HTMLTextAreaElement).value = '';
+                  (document.getElementById('featured') as HTMLInputElement).checked = false;
+                  (document.getElementById('avatarUrl') as HTMLInputElement).value = '';
+                  (document.getElementById('avatarThumb') as HTMLInputElement).value = '';
+                  (document.getElementById('avatarPreview') as HTMLImageElement).src = '';
+                  setAddValidationError("");
+                } catch (err: any) {
+                  setAddValidationError(err.message || "Failed to create testimonial. Please try again.");
                   console.error(err);
                 }
               }}>
 
+                {addValidationError && (
+                  <div className="flex gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{addValidationError}</span>
+                  </div>
+                )}
+
                 <div>
-                  <Label htmlFor="name">Customer Name</Label>
+                  <Label htmlFor="name">Customer Name *</Label>
                   <Input id="name" placeholder="Enter customer name" />
                 </div>
                 <div>
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">Location *</Label>
                   <Input id="location" placeholder="Enter location" />
                 </div>
                 <div>
-                  <Label htmlFor="rating">Rating</Label>
+                  <Label htmlFor="rating">Rating *</Label>
                   <div className="flex gap-1 py-2">
-                    <Input id="rating" type="number" min={1} max={5} placeholder="Rating 1-5" />
+                    <Input id="rating" type="number" min={1} max={5} placeholder="Rating 1-5" defaultValue="5" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="review">Review</Label>
+                  <Label htmlFor="review">Review *</Label>
                   <Textarea id="review" placeholder="Enter customer review" rows={4} />
                 </div>
                 <div>
@@ -138,10 +182,11 @@ const Testimonials = () => {
                       id="avatarFile"
                       type="file"
                       accept="image/*"
-                      className="block"
+                      className="block flex-1"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
+                        setAddImageLoading(true);
                         try {
                           const csrf = await (await import('@/lib/auth')).getCsrf();
                           const fd = new FormData();
@@ -164,11 +209,15 @@ const Testimonials = () => {
                           if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
                         } catch (err) {
                           console.error(err);
+                        } finally {
+                          setAddImageLoading(false);
                         }
                       }}
+                      disabled={addImageLoading}
                     />
                     <img id="avatarPreview" alt="avatar preview" className="h-12 w-12 rounded-full object-cover" />
                   </div>
+                  {addImageLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   <input id="avatarUrl" type="hidden" />
                   <input id="avatarThumb" type="hidden" />
                 </div>
@@ -185,7 +234,7 @@ const Testimonials = () => {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90">
+                  <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90" disabled={addImageLoading}>
                     Add Testimonial
                   </Button>
                 </div>
@@ -202,6 +251,7 @@ const Testimonials = () => {
             </DialogHeader>
             <form className="space-y-4" onSubmit={async (e) => {
               e.preventDefault();
+              setEditValidationError("");
               if (!editingTestimonial) return;
               const name = (document.getElementById('edit-name') as HTMLInputElement).value;
               const location = (document.getElementById('edit-location') as HTMLInputElement).value;
@@ -209,29 +259,58 @@ const Testimonials = () => {
               const review = (document.getElementById('edit-review') as HTMLTextAreaElement).value;
               const avatarUrl = (document.getElementById('edit-avatarUrl') as HTMLInputElement).value || null;
               const avatarThumb = (document.getElementById('edit-avatarThumb') as HTMLInputElement).value || null;
+
+              if (!name.trim()) {
+                setEditValidationError("Customer name is required.");
+                return;
+              }
+
+              if (!location.trim()) {
+                setEditValidationError("Location is required.");
+                return;
+              }
+
+              if (!review.trim()) {
+                setEditValidationError("Review is required.");
+                return;
+              }
+
+              if (!rating || rating < 1 || rating > 5) {
+                setEditValidationError("Rating must be between 1 and 5.");
+                return;
+              }
+
               try {
                 const updated = await (await import('@/lib/api')).updateTestimonial(editingTestimonial.id, { name, location, rating, text: review,  avatarUrl, avatarThumbUrl: avatarThumb });
                 setTestimonials((p) => p.map((x) => x.id === updated.id ? { ...x, ...{ name: updated.name, location: updated.location, rating: updated.rating ?? 5, review: updated.text, avatarUrl: updated.avatarUrl } } : x));
                 setIsEditDialogOpen(false);
                 setEditingTestimonial(null);
-              } catch (err) {
+                setEditValidationError("");
+              } catch (err: any) {
+                setEditValidationError(err.message || "Failed to update testimonial. Please try again.");
                 console.error(err);
               }
             }}>
+              {editValidationError && (
+                <div className="flex gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <span>{editValidationError}</span>
+                </div>
+              )}
               <div>
-                <Label htmlFor="edit-name">Customer Name</Label>
+                <Label htmlFor="edit-name">Customer Name *</Label>
                 <Input id="edit-name" placeholder="Enter customer name" />
               </div>
               <div>
-                <Label htmlFor="edit-location">Location</Label>
+                <Label htmlFor="edit-location">Location *</Label>
                 <Input id="edit-location" placeholder="Enter location" />
               </div>
               <div>
-                <Label htmlFor="edit-rating">Rating</Label>
+                <Label htmlFor="edit-rating">Rating *</Label>
                 <Input id="edit-rating" type="number" min={1} max={5} placeholder="Rating 1-5" />
               </div>
               <div>
-                <Label htmlFor="edit-review">Review</Label>
+                <Label htmlFor="edit-review">Review *</Label>
                 <Textarea id="edit-review" placeholder="Enter customer review" rows={4} />
               </div>
               <div>
@@ -241,10 +320,11 @@ const Testimonials = () => {
                     id="edit-avatarFile"
                     type="file"
                     accept="image/*"
-                    className="block"
+                    className="block flex-1"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+                      setEditImageLoading(true);
                       try {
                         const csrf = await (await import('@/lib/auth')).getCsrf();
                         const fd = new FormData();
@@ -267,11 +347,16 @@ const Testimonials = () => {
                         if (thumbInput) thumbInput.value = data.thumbUrl || data.url;
                       } catch (err) {
                         console.error(err);
+                      } finally {
+                        setEditImageLoading(false);
                       }
                     }}
+                    disabled={editImageLoading}
                   />
+                  
                   <img id="edit-avatarPreview" alt="avatar preview" className="h-12 w-12 rounded-full object-cover" />
                 </div>
+                {editImageLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                 <input id="edit-avatarUrl" type="hidden" />
                 <input id="edit-avatarThumb" type="hidden" />
               </div>
@@ -288,7 +373,7 @@ const Testimonials = () => {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90">
+                <Button type="submit" className="flex-1 bg-saffron hover:bg-saffron/90" disabled={editImageLoading}>
                   Save Changes
                 </Button>
               </div>
@@ -330,6 +415,7 @@ const Testimonials = () => {
                       setTimeout(() => {
                         const nameEl = document.getElementById('edit-name') as HTMLInputElement | null;
                         const locEl = document.getElementById('edit-location') as HTMLInputElement | null;
+                        const rating = document.getElementById('edit-rating') as HTMLInputElement | null;
                         const reviewEl = document.getElementById('edit-review') as HTMLTextAreaElement | null;
                         const avatarEl = document.getElementById('edit-avatarPreview') as HTMLImageElement | null;
                         const avatarUrlEl = document.getElementById('edit-avatarUrl') as HTMLInputElement | null;
@@ -337,6 +423,7 @@ const Testimonials = () => {
                         const featuredEl = document.getElementById('edit-featured') as HTMLInputElement | null;
                         if (nameEl) nameEl.value = p.name || '';
                         if (locEl) locEl.value = p.location || '';
+                        if (rating) rating.value = p.rating.toString();
                         if (reviewEl) reviewEl.value = p.review || p.text || '';
                         if (avatarEl) avatarEl.src = p.avatarUrl || '';
                         if (avatarUrlEl) avatarUrlEl.value = p.avatarUrl || '';

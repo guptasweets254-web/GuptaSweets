@@ -2,8 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { useEffect } from "react";
 import SiteMeta from "./components/SiteMeta";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
@@ -25,6 +26,17 @@ import { SettingsProvider } from "./contexts/SettingsContext";
 
 const queryClient = new QueryClient();
 
+// ScrollToTop component to handle scroll on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -33,8 +45,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-          <SiteMeta />
-          <Routes>
+            <ScrollToTop />
+            <SiteMeta />
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/gallery" element={<Gallery />} />

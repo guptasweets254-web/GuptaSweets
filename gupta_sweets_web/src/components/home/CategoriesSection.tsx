@@ -10,7 +10,7 @@ const CategoriesSection = () => {
   useEffect(() => {
     (async () => {
       try {
-        const cats = await getCategories();
+        const cats = (await getCategories()).filter((cat: any) => cat.type === 'Food' || !cat.type);
         setCategories(cats);
       } catch (err) {
         console.error('Failed to load categories', err);

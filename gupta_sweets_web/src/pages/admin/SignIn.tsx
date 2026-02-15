@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signIn } from '@/lib/auth';
-import { debug } from 'console';
+import { Loader2 } from 'lucide-react';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -31,17 +31,54 @@ const SignIn = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md p-8 bg-white rounded shadow">
-        <h2 className="text-2xl font-bold mb-4">Admin Sign In</h2>
-        {error && <div className="mb-4 text-red-600">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <label className="block mb-2">Email</label>
-          <input required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mb-4 p-2 border rounded" />
-          <label className="block mb-2">Password</label>
-          <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full mb-4 p-2 border rounded" />
-          <button type="submit" className="w-full p-2 bg-primary text-white rounded" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-saffron/5 to-transparent">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg border border-border">
+        <h2 className="text-2xl font-bold mb-2 text-foreground">Admin Sign In</h2>
+        <p className="text-sm text-muted-foreground mb-6">Welcome back! Please sign in to your account.</p>
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex gap-2">
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-foreground">Email</label>
+            <input
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron/50"
+              placeholder="admin@example.com"
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-foreground">Password</label>
+            <input
+              required
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron/50"
+              placeholder="••••••••"
+              disabled={loading}
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full p-2 bg-saffron hover:bg-saffron/90 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
       </div>

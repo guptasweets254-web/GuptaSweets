@@ -9,7 +9,7 @@ const Footer = () => {
       {/* Decorative Pattern */}
       <div className="absolute inset-0 indian-pattern opacity-10" />
       
-      <div className="container mx-auto px-4 py-16 relative z-10">
+      <div className="container mx-auto px-4 py-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
@@ -140,7 +140,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-accent/20 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-4 pt-4 border-t border-accent/20 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm opacity-60">
             © {new Date().getFullYear()} {bussinessDetails.settings?.siteName}. All rights reserved.
           </p>

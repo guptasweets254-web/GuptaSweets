@@ -23,7 +23,7 @@ const HeroSection = () => {
       <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-accent/30 rounded-full blur-xl animate-float" style={{ animationDelay: "4s" }} />
       
       {/* Sparkle Decorations */}
-      <Sparkles className="absolute top-32 right-20 w-8 h-8 text-accent/60 animate-sparkle" />
+      <Sparkles className="absolute top-36 md:top-34 right-2 md:right-20 w-8 h-8 text-accent/60 animate-sparkle" />
       <Sparkles className="absolute bottom-40 left-20 w-6 h-6 text-accent/40 animate-sparkle" style={{ animationDelay: "0.5s" }} />
       <Sparkles className="absolute top-1/2 left-1/4 w-5 h-5 text-accent/50 animate-sparkle" style={{ animationDelay: "1s" }} />
 
