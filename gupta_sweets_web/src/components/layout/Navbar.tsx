@@ -49,8 +49,8 @@ const Navbar = () => {
               <span className="font-serif text-xl font-bold text-foreground">{bussinessDetails.settings?.siteName[0]}</span>
               )}
             </div>
-            <div className="hidden sm:block">
-              <h1 className={`font-serif text-xl font-bold ${isScrolled
+            <div className="">
+              <h1 className={`font-serif text-sm md:text-xl font-bold ${isScrolled
           ? "text-foreground"
           : "text-white"} `}>
                 {bussinessDetails.settings?.siteName}
@@ -105,7 +105,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-background/98 backdrop-blur-lg border-t border-border shadow-xl animate-fade-in">
+          <div className={`lg:hidden absolute top-full left-0 right-0 ${isScrolled ? "bg-background/95" : "bg-background/5"} backdrop-blur-lg border-t border-border shadow-xl animate-fade-in`}>
             <div className="container mx-auto px-4 py-6">
               <div className="flex flex-col gap-4">
                 {navLinks.map((link) => (
