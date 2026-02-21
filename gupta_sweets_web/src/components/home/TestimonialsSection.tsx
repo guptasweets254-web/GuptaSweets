@@ -83,11 +83,17 @@ const TestimonialsSection = () => {
 
               {/* Author */}
               <div className="flex items-center justify-center gap-4">
-                <img
-                  src={items[current]?.avatarThumbUrl}
-                  alt={items[current]?.name || 'testimonial'}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-accent"
-                />
+                {items[current]?.avatarThumbUrl ? (
+                  <img
+                    src={items[current]?.avatarThumbUrl}
+                    alt={items[current]?.name || 'testimonial'}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-accent"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-saffron/10 text-lg font-semibold text-saffron">
+                      {items[current]?.name.charAt(0)}
+                  </div>
+                )}
                 <div className="text-left">
                   <h4 className="font-semibold text-foreground">
                     {items[current]?.name}

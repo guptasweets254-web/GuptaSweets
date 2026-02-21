@@ -108,7 +108,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm opacity-80">
                 <MapPin size={18} className="flex-shrink-0 mt-0.5" />
-                <span>{bussinessDetails.settings?.address}</span>
+                <span><a href={bussinessDetails.settings?.mapUrl} target="_blank">{bussinessDetails.settings?.address}</a></span>
               </li>
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Phone size={18} className="flex-shrink-0" />

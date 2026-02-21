@@ -39,7 +39,7 @@ const HeroSection = () => {
         {/* Main Heading */}
         <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground mb-6 leading-tight animate-fade-in" style={{ animationDelay: "0.2s" }}>
           Welcome to
-          <span className="text-gradient-gold"> {bussinessDetails?.settings?.siteName}</span>
+          <span className="text-gradient-gold"> Gupta Sweets And Gupta Caterers</span>
           <br />
           for Pure Taste & Tradition
         </h1>
