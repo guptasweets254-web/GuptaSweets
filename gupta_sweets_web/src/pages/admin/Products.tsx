@@ -44,6 +44,7 @@ const Products = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [addSelectedCategory, setAddSelectedCategory] = useState<string>("");
   const [editSelectedCategory, setEditSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [addValidationError, setAddValidationError] = useState("");
   const [editValidationError, setEditValidationError] = useState("");
@@ -263,9 +264,11 @@ const Products = () => {
     }
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || product.category?.name === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="min-h-screen">
@@ -283,6 +286,20 @@ const Products = () => {
               className="pl-9"
             />
           </div>
+
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="w-full sm:w-40">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Categories</SelectItem>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.name}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
