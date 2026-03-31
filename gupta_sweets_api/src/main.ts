@@ -12,8 +12,10 @@ async function bootstrap() {
 
   app.use(cookieParser(process.env.CSRF_SECRET));
 
+  const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
+    origin: frontendUrl,
     credentials: true,
   });
 
