@@ -16,6 +16,7 @@ const Settings = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [autoSave, setAutoSave] = useState(false);
 
   // Controlled settings fields
   const [siteName, setSiteName] = useState('Gupta Sweets');
@@ -102,6 +103,7 @@ const Settings = () => {
 
   // Auto-save effect
   const triggerAutoSave = () => {
+    if (!autoSave) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(() => {
       saveSettings();
