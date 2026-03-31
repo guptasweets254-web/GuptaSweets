@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,7 +16,6 @@ const Settings = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [autoSave, setAutoSave] = useState(false);
 
   // Controlled settings fields
   const [siteName, setSiteName] = useState('Gupta Sweets');
@@ -104,7 +102,6 @@ const Settings = () => {
 
   // Auto-save effect
   const triggerAutoSave = () => {
-    if (!autoSave) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(() => {
       saveSettings();
@@ -189,14 +186,6 @@ const Settings = () => {
                     <input id="logoFile" type="file" accept="image/*" className="block" onChange={(e) => handleLogoUpload(e.target.files?.[0])} />
                     <img id="logoPreview" src={logoUrl || ''} alt="logo" className="h-16 w-16 rounded-lg object-cover" />
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-foreground">Auto-save changes</p>
-                    <p className="text-sm text-muted-foreground">Automatically save changes after a short delay</p>
-                  </div>
-                  <Switch checked={autoSave} onCheckedChange={(v) => setAutoSave(!!v)} />
                 </div>
               </CardContent>
             </Card>
