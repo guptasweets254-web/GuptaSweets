@@ -108,7 +108,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm opacity-80">
                 <MapPin size={18} className="flex-shrink-0 mt-0.5" />
-                <span><a className="hover:text-accent transition-colors" href={"https://maps.app.goo.gl/5sKCXdZE2V2jU8bs9"} target="_blank">{bussinessDetails.settings?.address}</a></span>
+                <span><a className="hover:text-accent transition-colors" href={"https://www.google.com/maps/place/Gupta+Sweets/@28.3794323,79.1060257,11z/data=!4m10!1m2!2m1!1sgupta+sweets!3m6!1s0x39a0071105962ea5:0x9bb8ae6fd9db6cef!8m2!3d28.3794323!4d79.4108963!15sCgxndXB0YSBzd2VldHNaDiIMZ3VwdGEgc3dlZXRzkgESaW5kaWFuX3N3ZWV0c19zaG9w4AEA!16s%2Fg%2F11byz1l63c?entry=ttu&g_ep=EgoyMDI2MDIxOC4wIKXMDSoASAFQAw%3D%3D"} target="_blank">{bussinessDetails.settings?.address}</a></span>
               </li>
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Phone size={18} className="flex-shrink-0" />
