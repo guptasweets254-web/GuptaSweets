@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Instagram, Facebook, Clock, Twitter, Youtube } from "lucide-react";
+import { Phone, Mail, MapPin, Instagram, Facebook, Clock, Twitter, Youtube, Heart} from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 
 const Footer = () => {
