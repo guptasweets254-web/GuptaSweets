@@ -144,8 +144,18 @@ const Footer = () => {
           <p className="text-sm opacity-60">
             © {new Date().getFullYear()} {bussinessDetails.settings?.siteName}. All rights reserved.
           </p>
-          <p className="text-sm opacity-60">
-            Made with ❤️ for sweet lovers
+          <p className="text-center md:text-right flex items-center justify-center gap-1 md:justify-end">
+            Crafted with Love
+            <Heart className="h-3 w-3 text-red-500 fill-red-500 animate-pulse" />
+            by{" "}
+            <a
+              href="https:https://datetechsolution.store/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Datetech Solution
+            </a>
           </p>
         </div>
       </div>
