@@ -69,7 +69,7 @@ const HeroSection = () => {
         {/* Trust Badges */}
         <div className="flex flex-wrap justify-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: "0.8s" }}>
           {[
-            "100% Pure Desi Ghee",
+            "100% Pure Sweets",
             "Handcrafted Daily",
             `${bussinessAge}+ Years Legacy`,
           ].map((badge) => (

@@ -20,7 +20,7 @@ const features = [
   {
     icon: Truck,
     title: "Trusted Catering",
-    description: "Trusted name in Bareilly catering services",
+    description: "Trusted name in Bareilly in catering services",
   },
 ];
 
