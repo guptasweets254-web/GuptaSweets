@@ -19,6 +19,7 @@ export type SiteSettings = {
   businessHours?: string;
   zomato?: string;
   swiggy?: string;
+  otherContactNo?: string;
 };
 
 type SettingsContextValue = {

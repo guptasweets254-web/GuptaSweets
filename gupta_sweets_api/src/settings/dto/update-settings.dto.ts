@@ -1,6 +1,8 @@
 import { IsOptional, IsString, IsUrl } from 'class-validator';
 import { EmptyStringToUndefined } from '../../common/decorators/empty-string-to-undefined-decorator';
 
+const phoneRegex = /^[+]?\d[\d\s-]{6,19}$/;
+
 export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
@@ -63,6 +65,10 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  otherContactNo?: string;
 
   @IsOptional()
   @IsString()

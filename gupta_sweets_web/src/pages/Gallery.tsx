@@ -22,7 +22,6 @@ const Gallery = () => {
     (async () => {
       try {
         const data: GalleryImage[] = await getGallery();
-        console.log(data);
         setImages(data);
 
         const uniqueCategories = Array.from(
@@ -126,25 +125,27 @@ const Gallery = () => {
             </button>
 
             <div
-              className="max-w-4xl max-h-[80vh] relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={selectedImage.imageUrl}
-                alt={selectedImage.title}
-                className="w-full h-full object-contain rounded-lg"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-foreground/80 to-transparent p-6 rounded-b-lg">
-                <h3 className="font-serif text-xl font-semibold text-primary-foreground">
-                  {selectedImage.title}
-                </h3>
-                {selectedImage.category && (
-                  <p className="text-primary-foreground/70 text-sm">
-                    {selectedImage.category}
-                  </p>
-                )}
-              </div>
-            </div>
+  className="relative max-w-4xl max-h-[80vh] overflow-hidden rounded-lg"
+  onClick={(e) => e.stopPropagation()}
+>
+  <img
+    src={selectedImage.imageUrl}
+    alt={selectedImage.title}
+    className="w-full max-h-[80vh] object-contain"
+  />
+
+  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+    <h3 className="font-serif text-xl font-semibold text-white">
+      {selectedImage.title}
+    </h3>
+
+    {selectedImage.category && (
+      <p className="text-white/70 text-sm">
+        {selectedImage.category}
+      </p>
+    )}
+  </div>
+</div>
           </div>
         )}
       </Layout>

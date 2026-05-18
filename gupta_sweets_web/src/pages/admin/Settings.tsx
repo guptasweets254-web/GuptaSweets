@@ -25,6 +25,7 @@ const Settings = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const [phone, setPhone] = useState('+91 98765 43210');
+  const [otherContactNo, setOtherContactNo] = useState('');
   const [whatsapp, setWhatsapp] = useState('+91 98765 43210');
   const [email, setEmail] = useState('info@guptasweets.com');
   const [address, setAddress] = useState('123, Sweet Lane, Near Central Market, Bareilly - 243001');
@@ -52,6 +53,7 @@ const Settings = () => {
       setLogoUrl(data.logoUrl || null);
 
       setPhone(data.phone || phone);
+      setOtherContactNo(data.otherContactNo || otherContactNo);
       setWhatsapp(data.whatsapp || whatsapp);
       setEmail(data.email || email);
       setAddress(data.address || address);
@@ -79,6 +81,7 @@ const Settings = () => {
         description,
         logoUrl,
         phone,
+        otherContactNo,
         whatsapp,
         email,
         address,
@@ -206,6 +209,12 @@ const Settings = () => {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input id="phone" value={phone} onChange={(e) => onFieldChange(setPhone)(e.target.value)} />
                   </div>
+                  <div>
+                    <Label htmlFor="otherContactNo">Alternate Phone Number</Label>
+                    <Input id="otherContactNo" value={otherContactNo} onChange={(e) => onFieldChange(setOtherContactNo)(e.target.value)} placeholder="+91 98765 43211" />
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <Label htmlFor="whatsapp">WhatsApp Number</Label>
                     <Input id="whatsapp" value={whatsapp} onChange={(e) => onFieldChange(setWhatsapp)(e.target.value)} />

@@ -116,6 +116,14 @@ const Footer = () => {
                   +91 {bussinessDetails.settings?.phone}
                 </a>
               </li>
+              {bussinessDetails.settings?.otherContactNo ? (
+                <li className="flex items-center gap-3 text-sm opacity-80">
+                  <Phone size={18} className="flex-shrink-0" />
+                  <a href={`tel:+91${bussinessDetails.settings?.otherContactNo?.replace(/\D/g, '')}`} className="hover:text-accent transition-colors">
+                    +91 {bussinessDetails.settings?.otherContactNo}
+                  </a>
+                </li>
+              ) : null}
               <li className="flex items-center gap-3 text-sm opacity-80">
                 <Mail size={18} className="flex-shrink-0" />
                 <a href={`mailto:${bussinessDetails.settings?.email}`} className="hover:text-accent transition-colors">
