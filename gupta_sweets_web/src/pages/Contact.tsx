@@ -87,9 +87,11 @@ const Contact = () => {
                         +91 {settings?.phone}
                       </a>
                       <br />
-                      <a href={`tel:+91${settings?.whatsapp}`} className="text-muted-foreground hover:text-primary transition-colors">
-                        +91 {settings?.whatsapp}
-                      </a>
+                      {settings?.otherContactNo ? (
+                        <a href={`tel:+91${settings?.otherContactNo}`} className="text-muted-foreground hover:text-primary transition-colors">
+                          +91 {settings?.otherContactNo}
+                        </a>            
+                      ) : null}
                     </div>
                   </div>
 
